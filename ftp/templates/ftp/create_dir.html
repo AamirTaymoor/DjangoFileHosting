@@ -1,0 +1,9 @@
+<html>
+   <body>
+      <form name = "form" action = "{% url 'ftp:create-dir' %}" 
+         method = "POST" >{% csrf_token %}
+               {{form}}
+               <button type = "submit" value = "Submit" >Create</button>
+      </form>
+    </body>
+</html>

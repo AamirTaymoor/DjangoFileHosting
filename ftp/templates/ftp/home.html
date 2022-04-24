@@ -1,0 +1,29 @@
+{% extends "ftp/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="text-center">
+  <h1>
+
+    Welcome to the Our site
+  </h1>
+</div>
+    
+  
+
+<!-- <div class="text-center" > Welcome to the Our site</div> -->
+
+{% if messages %}
+{% for message in messages %}
+{{ message }}
+{% endfor %}
+{% endif %}
+<div class="container-lg">
+  <div>
+    <a href="{% url 'ftp:register' %}">Sign Up</a>
+
+    <a href="{% url 'ftp:login-page' %}">Login</a>
+  </div>
+</div>
+
+{% endblock content %}
