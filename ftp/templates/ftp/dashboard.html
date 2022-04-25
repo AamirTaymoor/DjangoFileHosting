@@ -26,26 +26,36 @@
 </style>
 
 <p class="h1">My Folders</p>
-    <div class="container">
+    <div class="container" style="display: flex;">
 
-    </div>
+    
     {% if dir %}
     {% for i in dir %}
     
-    <div class="row">
+    <!-- <div class="row">
         <div class="col"><p>   </p>
 
             <div>
-                <a href="{% url 'ftp:display_folder-page' i.name %}" class="btn btn-info btn-lg">
-                    <span class="glyphicon glyphicon-folder-open"></span> {{ i.name }}
+                <ul>
+                    <a href="{% url 'ftp:display_folder-page' i.name %}" class="btn btn-info btn-lg">
+                        <span class="glyphicon glyphicon-folder-open"></span> {{ i.name }}
+                    </ul>
                 </a>
             </div>
         </div><p>   </p>
-    </div>
-    
+    </div> -->
+    <div style="display: flex; flex-direction: column;">
+    <a href="{% url 'ftp:display_folder-page' i.name %}" >
+        <i class="fa-solid fa-folder" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
+    </a>
+    <span>
+        {{ i.name }}
+    </span>
+</div>    
+
     {% endfor %}
     {% endif %}
-
+</div>
 
 
 {% endblock %}
