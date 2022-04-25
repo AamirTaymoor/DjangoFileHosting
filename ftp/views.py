@@ -1,11 +1,9 @@
-from contextlib import nullcontext
-from re import U
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import View
 from django.contrib.auth.models import User
 from requests import request
-from .forms import RegisterForm, CreateDirForm, UserLoginForm
+from .forms import RegisterForm, CreateDirForm, UserLoginForm,FileUpload
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
@@ -13,6 +11,7 @@ from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.decorators import login_required
 from ftp.models import Profile, Directory, MyFiles
 from django.core.files import File
+from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
 #"<a href="https://www.flaticon.com/free-icons/folder" title="folder icons">Folder icons created by Kiranshastry - Flaticon</a>"
 
@@ -43,8 +42,27 @@ class RegisterView(View):
         form = RegisterForm()
         return render(request, "ftp/register_new.html", context={"register_form": form})
 
+class LoginRequestView(View):
+    def get(self, request):
+        form = AuthenticationForm()
+        return render(request, template_name="ftp/login_new.html", context={"login_form": form})
+    
+    def post(self, request):
+        form = UserLoginForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"You are now logged in as {username}.")
+                return redirect("ftp:dashboard")
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
 
-def login_request(request):
+"""def login_request(request):
     if request.method == "POST":
         form = UserLoginForm(request, data=request.POST)
         if form.is_valid():
@@ -60,13 +78,19 @@ def login_request(request):
         else:
             messages.error(request, "Invalid username or password.")
     form = AuthenticationForm()
-    return render(request, template_name="ftp/login_new.html", context={"login_form": form})
+    return render(request, template_name="ftp/login_new.html", context={"login_form": form})"""
 
 
-def logout_request(request):
+class LogoutRequestView(View):
+    def get(self, request):
+        logout(request)
+        messages.info(request, "You have successfully logged out.")
+        return redirect("ftp:home")
+
+"""def logout_request(request):
     logout(request)
     messages.info(request, "You have successfully logged out.")
-    return redirect("ftp:home")
+    return redirect("ftp:home")"""
 
 
 @login_required(login_url='login-page')
@@ -117,7 +141,6 @@ def upload(request, pk):
             myfiles.append(i.file_path)
         return render(request, 'ftp/dashboard.html', {'myfiles': myfiles})
     return render(request, 'ftp/upload_file.html' ,{'pk':pk})
-
 
 """@login_required(login_url='login-page')
 def create_dir(request):
