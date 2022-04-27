@@ -2,7 +2,6 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import View
 from django.contrib.auth.models import User
-from requests import request
 from .forms import RegisterForm, CreateDirForm, UserLoginForm,FileUpload
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -11,9 +10,12 @@ from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.decorators import login_required
 from ftp.models import Profile, Directory, MyFiles
 from django.core.files import File
+from django.views.generic import DetailView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.views.generic.edit import FormView, CreateView
+
 # Create your views here.
-#"<a href="https://www.flaticon.com/free-icons/folder" title="folder icons">Folder icons created by Kiranshastry - Flaticon</a>"
 
 def Home(request):
     return render(request, "ftp/home.html")
@@ -42,6 +44,7 @@ class RegisterView(View):
         form = RegisterForm()
         return render(request, "ftp/register_new.html", context={"register_form": form})
 
+
 class LoginRequestView(View):
     def get(self, request):
         form = AuthenticationForm()
@@ -56,29 +59,15 @@ class LoginRequestView(View):
             if user is not None:
                 login(request, user)
                 messages.info(request, f"You are now logged in as {username}.")
-                return redirect("ftp:dashboard")
+                return redirect("ftp:dashboard",pk=user.username)
             else:
-                messages.error(request, "Invalid username or password.")
+                messages.error(request, "Invalid username or password!!!")
+                form = AuthenticationForm()
+                return render (request, 'ftp/login_new.html', context={"login_form":form})
         else:
-            messages.error(request, "Invalid username or password.")
-
-"""def login_request(request):
-    if request.method == "POST":
-        form = UserLoginForm(request, data=request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                messages.info(request, f"You are now logged in as {username}.")
-                return redirect("ftp:dashboard")
-            else:
-                messages.error(request, "Invalid username or password.")
-        else:
-            messages.error(request, "Invalid username or password.")
-    form = AuthenticationForm()
-    return render(request, template_name="ftp/login_new.html", context={"login_form": form})"""
+            messages.error(request, "Invalid username or password!!!")
+            form = AuthenticationForm()
+            return render (request, 'ftp/login_new.html', context={"login_form":form})
 
 
 class LogoutRequestView(View):
@@ -87,104 +76,88 @@ class LogoutRequestView(View):
         messages.info(request, "You have successfully logged out.")
         return redirect("ftp:home")
 
-"""def logout_request(request):
-    logout(request)
-    messages.info(request, "You have successfully logged out.")
-    return redirect("ftp:home")"""
 
+@method_decorator(login_required, name='dispatch')
+class Dashboard(DetailView):
+    model = Directory
+    template_name = "ftp/dashboard.html"
 
-@login_required(login_url='login-page')
-def dashboard(request):
-    directories = Directory.objects.all().filter(user=request.user)
-    print(directories)
-    files = MyFiles.objects.all().filter(user=request.user)
-    print(files)
-    dirs = []
-    my_files = []
-    for f in files:
-        my_files.append(f.file_path)
-    for d in directories:
-        dirs.append(d)
-        files = MyFiles.objects.all().filter(directory=d)
-        try:
-            #my_files = []
-            for f in files:
-                my_files.append(f.file_path)
-        except MyFiles.DoesNotExist:
-            pass
+    def get_queryset(self):
+        uid = User.objects.get(username=self.request.user)
+        self.queryset = Directory.objects.filter(user=uid)
+        print(self.queryset.filter(user=uid))
+        return self.queryset.filter(user=uid)
     
-        context = {'dir': dirs, 'fil':my_files}
-    return render(request, "ftp/dashboard.html", context)
+    def get(self, request,pk):
+        context = self.get_queryset()
+        return render(request,"ftp/dashboard.html", {'context':context})
 
 
-"""@login_required(login_url='login-page')
-def upload_file(request):
-    return render(request, 'ftp/upload_file.html', )"""
+@method_decorator(login_required, name='dispatch')
+class UploadView(FormView):
+    form_class = FileUpload
+    template_name = 'upload_file.html'  
+    success_url = 'ftp/display_folder.html'
+
+    def post(self, request, pk):
+        if request.FILES['myfile']:
+            myfile = request.FILES['myfile']
+            fs = FileSystemStorage()
+            filename = fs.save(myfile.name, myfile)
+            uploaded_file_url = fs.url(filename)
+            obj = MyFiles()
+            obj.file_path = uploaded_file_url
+            obj.user = request.user
+            data = Directory.objects.filter(name=pk)[0]
+            obj.directory = Directory.objects.filter(name=pk)[0]
+            obj.save()
+        f = MyFiles.objects.filter(directory=data)
+        return render(request, 'ftp/display_folder.html', {'pk': pk,'d':f})
+    
+    def get(self, request, pk):
+        return render(request, 'ftp/upload_file.html' ,{'pk':pk})
 
 
-@login_required(login_url='login-page')
-def upload(request, pk):
-    if request.method == 'POST' and request.FILES['myfile']:
-        myfile = request.FILES['myfile']
-        fs = FileSystemStorage()
-        filename = fs.save(myfile.name, myfile)
-        uploaded_file_url = fs.url(filename)
-        obj = MyFiles()
-        obj.file_path = uploaded_file_url
-        obj.user = request.user
-        data = Directory.objects.filter(name=pk)[0]
-        obj.directory = Directory.objects.filter(name=pk)[0]
-        obj.save()
-        f = MyFiles.objects.filter(user=request.user)
-        myfiles = []
-        for i in f:
-            myfiles.append(i.file_path)
-        return render(request, 'ftp/dashboard.html', {'myfiles': myfiles})
-    return render(request, 'ftp/upload_file.html' ,{'pk':pk})
+@method_decorator(login_required, name='dispatch')
+class CreateFolder(CreateView):
+    model=Directory
 
-"""@login_required(login_url='login-page')
-def create_dir(request):
-    if request.method == 'POST':
-        d_name = request.POST['dname']
-        obj = Directory()
-        obj.user = request.user.username
-        #d = Directory.objects.get()
-        #obj.parent = 
-        obj.name = d_name
-        obj.save()
-    else:
-        return render(request, 'ftp/create_dir.html')
-    return render(request,'ftp/dashboard.html' )"""
-
-
-@login_required(login_url='login-page')
-def create_dir(request):
-    if request.method == "POST":
-        # Get the posted form
-        my_user_form = CreateDirForm(request.POST)
-        #dname=''
-        if my_user_form.is_valid():
-            # do anything here
-            dname = my_user_form.cleaned_data['d_name']
-            print(dname)
+    def get(self, request):
+        form = CreateDirForm()
+        return render(request, 'ftp/create_dir.html', {'form':form})
+    
+    def post(self, request):
+        my_form = CreateDirForm(request.POST)
+        if my_form.is_valid():
+            dname = my_form.cleaned_data['d_name']
             obj = Directory()
-            #u = str(request.user.username)
             obj.user = request.user
             print(request.user)
             # d = Directory.objects.get()
             obj.parent = None
             obj.name = dname
             obj.save()
-    else:
-        my_user_form = CreateDirForm()
-        return render(request, 'ftp/create_dir.html', {'form':my_user_form})
-
-    return render(request, 'ftp/dashboard.html')
-
-@login_required(login_url='login-page')
-def folder_view(request, pk):
-    data = Directory.objects.filter(name=pk)
-    fil = MyFiles.objects.filter(directory=data[0])
-    return render(request, 'ftp/display_folder.html', {'d':fil,'pk':pk})
+        uid = User.objects.get(username=self.request.user)
+        context = Directory.objects.filter(user=uid)
+        return render(request, 'ftp/dashboard.html',{'context':context})
 
 
+@method_decorator(login_required, name='dispatch')
+class FolderView(View):
+    def get(self, request, pk):
+        data = Directory.objects.filter(name=pk).filter(user=request.user)
+        fil = MyFiles.objects.filter(directory=data[0])
+        return render(request, 'ftp/display_folder.html', {'d':fil,'pk':pk})
+
+
+@method_decorator(login_required, name='dispatch')
+class ProfileView(ListView):
+    model = Profile
+
+    def get(self,request, pk):
+        p = Profile.objects.filter(user=request.user)[0]
+        return render(request, 'ftp/profile.html', {'p':p})
+
+
+def about_us(request):
+    return render(request, 'ftp/about_us.html')

@@ -1,5 +1,12 @@
 {% extends 'ftp/base.html' %}
-{% load crispy_forms_tags %}
 {% block content %}
-{{user.username}}
+
+    <div>
+        <div>Username: {{p.user}}</div> 
+   
+    <br>
+    
+        <div>Email: {{p.user.email}}</div> 
+    </div>
+  
 {% endblock %}

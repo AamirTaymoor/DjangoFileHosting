@@ -2,23 +2,7 @@
 {% load static %}
 
 {% block content %}
-<!-- <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-<ul class="nav nav-pills nav-justified mb-3" id="ex1" role="tablist">
-    <li class="nav-item" role="presentation">
-      <a class="nav-link active" id="tab-login" data-mdb-toggle="pill" href="{% url 'ftp:create-dir' %}" role="tab"
-        aria-controls="pills-login" aria-selected="true">Create Folder</a>
-    </li>
-    
-  </ul>
-</nav> -->
 
-<!-- <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
-
-<!-- <div>Hello, {{ user.username|default:'Guest' }}! </div> -->
-<!-- <div>My Folders</div> -->
 <style>
 .container {
     grid-gap: 50px;
@@ -29,21 +13,9 @@
     <div class="container" style="display: flex;">
 
     
-    {% if dir %}
-    {% for i in dir %}
+    {% if context %}
+    {% for i in context%}
     
-    <!-- <div class="row">
-        <div class="col"><p>   </p>
-
-            <div>
-                <ul>
-                    <a href="{% url 'ftp:display_folder-page' i.name %}" class="btn btn-info btn-lg">
-                        <span class="glyphicon glyphicon-folder-open"></span> {{ i.name }}
-                    </ul>
-                </a>
-            </div>
-        </div><p>   </p>
-    </div> -->
     <div style="display: flex; flex-direction: column;">
     <a href="{% url 'ftp:display_folder-page' i.name %}" >
         <i class="fa-solid fa-folder" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
@@ -51,6 +23,7 @@
     <span>
         {{ i.name }}
     </span>
+
 </div>    
 
     {% endfor %}
