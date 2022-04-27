@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import View
 from django.contrib.auth.models import User
+from requests import delete
 from .forms import RegisterForm, CreateDirForm, UserLoginForm,FileUpload
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -10,10 +11,12 @@ from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.decorators import login_required
 from ftp.models import Profile, Directory, MyFiles
 from django.core.files import File
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import FormView, CreateView
+from django.urls import reverse_lazy, reverse
+
 
 # Create your views here.
 
@@ -85,7 +88,7 @@ class Dashboard(DetailView):
     def get_queryset(self):
         uid = User.objects.get(username=self.request.user)
         self.queryset = Directory.objects.filter(user=uid)
-        print(self.queryset.filter(user=uid))
+        #print(self.queryset.filter(user=uid))
         return self.queryset.filter(user=uid)
     
     def get(self, request,pk):
@@ -157,6 +160,16 @@ class ProfileView(ListView):
     def get(self,request, pk):
         p = Profile.objects.filter(user=request.user)[0]
         return render(request, 'ftp/profile.html', {'p':p})
+
+@method_decorator(login_required, name='dispatch')
+class DeleteFolder(DeleteView):
+    model = Directory
+    success_url ="/dashboard/pk"
+    
+@method_decorator(login_required, name='dispatch')
+class DeleteFile(DeleteView):
+    def delete(self, request,*args):
+        pass
 
 
 def about_us(request):
