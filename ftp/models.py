@@ -28,7 +28,6 @@ class MyFiles(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-
 def create_profile(sender, instance, created, **kwargs):
     if created:
        user_profile = Profile(user=instance)

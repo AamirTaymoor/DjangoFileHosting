@@ -17,16 +17,18 @@
     {% for i in context%}
     
     <div style="display: flex; flex-direction: column;">
-    <a href="{% url 'ftp:display_folder-page' i.name %}" >
+    <a href="{% url 'ftp:display_folder-page' pk=i.name %}" >
         <i class="fa-solid fa-folder" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
     </a>
     <span>
         {{ i.name }}
+        {{object.name}}
     </span>
     <span style="line-height:50%">
-        <a href="{% url 'ftp:delete-folder' i.name%}">
-        <button type="button" class="btn btn-danger">Delete</button>
-    </a>
+        <a href="{% url 'ftp:delete-folder' pk=i.name%}">
+            <button type="button" class="btn btn-danger">Delete</button>
+        </a>
+    
     </span>
 </div>    
 

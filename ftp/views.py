@@ -16,7 +16,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import FormView, CreateView
 from django.urls import reverse_lazy, reverse
-
+from django.utils.functional import lazy
 
 # Create your views here.
 
@@ -157,7 +157,7 @@ class FolderView(View):
 class ProfileView(ListView):
     model = Profile
 
-    def get(self,request, pk):
+    def get(self,request):
         p = Profile.objects.filter(user=request.user)[0]
         return render(request, 'ftp/profile.html', {'p':p})
 
@@ -165,12 +165,28 @@ class ProfileView(ListView):
 class DeleteFolder(DeleteView):
     model = Directory
     success_url ="/dashboard/pk"
-    
+
 @method_decorator(login_required, name='dispatch')
 class DeleteFile(DeleteView):
-    def delete(self, request,*args):
+    model = MyFiles
+
+    def delete(self, request, pk):
+        my_file = MyFiles.objects.get(id =pk)
+        print(my_file)
+        my_file.delete()
+        fold = my_file.name
+        super(MyFiles, self).delete()
+        return render(request, 'ftp:display_folder-page',{'d':fold})
         pass
 
-
+    def get_success_url(self):
+        o_id = self.kwargs.get('pk')
+        print(o_id,"idididididididid")
+        dir = MyFiles.objects.get(id = o_id).directory
+        print(dir)
+        folder_name = str(dir.name)
+        print("folder########", folder_name)
+        return reverse_lazy('ftp:display_folder-page', kwargs={'pk':folder_name})
+        
 def about_us(request):
     return render(request, 'ftp/about_us.html')

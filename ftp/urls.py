@@ -19,5 +19,6 @@ urlpatterns = [
     path("display_folder/<str:pk>",views.FolderView.as_view(), name="display_folder-page" ),
     path("profile/",views.ProfileView.as_view(), name="profile" ),
     path('about/', views.about_us, name='about'),
-    path("del_folder/<str:pk>",views.DeleteFolder.as_view(), name="delete-folder" ),
+    path("del_folder/<str:pk>",views.DeleteFolder.as_view(), name="delete-folder"),
+    path("del_file/<int:pk>",views.DeleteFile.as_view(), name="delete-file"),
 ]
