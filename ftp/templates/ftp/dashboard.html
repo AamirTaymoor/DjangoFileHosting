@@ -25,12 +25,35 @@
         {{object.name}}
     </span>
     <span style="line-height:50%">
-        <a href="{% url 'ftp:delete-folder' pk=i.name%}">
+        <!-- <a href="{% url 'ftp:delete-folder' pk=i.name%}">
             <button type="button" class="btn btn-danger">Delete</button>
-        </a>
+        </a> -->
+        <a href="{% url 'ftp:delete-folder' pk=i.name %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#delete-item-modal" id="delete-item">
+            Delete
+          </a>
     
-    </span>
-</div>    
+    </div>    
+        <div class="modal fade" id="delete-item-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p>Are you sure, You want to remove this item?</p>
+                    </div>
+                    <div class="justify-content-between mb-2 mr-2 text-right">
+                        <form method="post" id="item-delete-form" action="{% url 'ftp:delete-folder' pk=i.name %}">
+                            <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger" id="confirm-delete-item-button">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            $(document).on('click', '#delete-item', () => {
+                document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
+            });
+        </script>
 
     {% endfor %}
     {% endif %}

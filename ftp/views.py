@@ -149,7 +149,9 @@ class CreateFolder(CreateView):
 class FolderView(View):
     def get(self, request, pk):
         data = Directory.objects.filter(name=pk).filter(user=request.user)
+        print('##############')
         fil = MyFiles.objects.filter(directory=data[0])
+        print('****************************')
         return render(request, 'ftp/display_folder.html', {'d':fil,'pk':pk})
 
 
@@ -169,15 +171,6 @@ class DeleteFolder(DeleteView):
 @method_decorator(login_required, name='dispatch')
 class DeleteFile(DeleteView):
     model = MyFiles
-
-    def delete(self, request, pk):
-        my_file = MyFiles.objects.get(id =pk)
-        print(my_file)
-        my_file.delete()
-        fold = my_file.name
-        super(MyFiles, self).delete()
-        return render(request, 'ftp:display_folder-page',{'d':fold})
-        pass
 
     def get_success_url(self):
         o_id = self.kwargs.get('pk')
