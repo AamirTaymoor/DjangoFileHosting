@@ -1,0 +1,71 @@
+{% extends "ftp/base.html" %}
+{% load static %}
+{% block content %}
+<style>
+ 
+
+</style>
+
+<p class="h1">
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    
+    <a href="{% url 'ftp:upload' pk %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"> Upload File</a>
+</div>
+</p>
+<!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+<ul class="nav nav-pills nav-justified mb-3" id="ex1" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" id="tab-login" data-mdb-toggle="pill" href="{% url 'ftp:upload' pk%}" role="tab"
+        aria-controls="pills-login" aria-selected="true">Upload File</a>
+    </li>
+    
+  </ul> -->
+  <div class="container" style="display: flex;">
+{% if d %}
+{% for i in d %}
+        <div style="display: flex; flex-direction: column;">
+          <a href="{{i.file_path}}">
+            <i class="fa-solid fa-file" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
+          </a>
+          <span>
+            {{ i.file_path }}
+        </span>
+        </a>
+        <span style="line-height:50%">
+          <!-- <a href="{% url 'ftp:delete-file' pk=i.id  %}">
+          <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal" id="delete-item">Delete</button>
+          </a>  -->
+          <a href="{% url 'ftp:delete-file' pk=i.id  %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#delete-item-modal" id="delete-item">
+            Delete
+          </a>
+        </div>
+        <div class="modal fade" id="delete-item-modal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-body">
+                <p>Are you sure, You want to remove this item?</p>
+              </div>
+              <div class="justify-content-between mb-2 mr-2 text-right">
+                <form method="post" id="item-delete-form" action="{% url 'ftp:delete-file' pk=i.id %}">
+                  <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger" id="confirm-delete-item-button">Delete</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <script>
+           $(document).on('click', '#delete-item', () => {
+        document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
+        });
+        </script>
+{% endfor %}      
+{% else %}
+    
+        <div>No Files in this folder</div>
+{% endif %}
+
+</div>
+{% endblock %}
