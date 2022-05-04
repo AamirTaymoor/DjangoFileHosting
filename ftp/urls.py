@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .forms import UserLoginForm
 from django.contrib.auth.decorators import login_required
 
 app_name = "ftp"
@@ -7,7 +8,7 @@ app_name = "ftp"
 urlpatterns = [
     path('', views.Home, name='home'),
     path("reg/", views.RegisterView.as_view(), name="register"),
-    path("login/", views.LoginRequestView.as_view(), name="login-page"),
+    path("login/", views.LoginRequestView.as_view(),name="login-page"),
     #path('login/',views.login_request, name='login-page'),
     path("logout/", views.LogoutRequestView.as_view(), name="logout-page"),
     #path("dashboard/", views.dashboard, name="dashboard"),
