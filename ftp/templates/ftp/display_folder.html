@@ -6,12 +6,45 @@
 
 </style>
 
-<p class="h1">
+<!-- <p class="h1">
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    
+  
     <a href="{% url 'ftp:upload' pk %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"> Upload File</a>
 </div>
-</p>
+</p> -->
+<!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"> -->
+
+  <a href="{% url 'ftp:upload' pk %}" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="upload-file"> Upload File</a>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel" style="color: blue;">File Upload</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post" id="upload-form" action = "{% url 'ftp:upload' pk %}"  enctype="multipart/form-data" >
+          {% csrf_token %}
+          <input type="file" id="file" name="myfile" style="color: blue;">
+          <!-- <button type="submit" >Upload</button> -->
+          <button type="submit" class="btn btn-primary" style="background-color: blue;">Upload</button>
+        </form>
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="background-color: blue;">Cancel</button>
+        {% csrf_token %}
+        <!-- <button type="submit" class="btn btn-primary" id="confirm-upload">upload</button> -->
+
+      </div>
+    </div>
+  </div>
+</div> 
+
 <!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
 <ul class="nav nav-pills nav-justified mb-3" id="ex1" role="tablist">
     <li class="nav-item" role="presentation">
@@ -20,6 +53,7 @@
     </li>
     
   </ul> -->
+
   <div class="container" style="display: flex;">
 {% if d %}
 {% for i in d %}
@@ -60,7 +94,8 @@
            $(document).on('click', '#delete-item', () => {
         document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
         });
-        </script>
+       </script>
+        
 {% endfor %}      
 {% else %}
     

@@ -3,16 +3,39 @@
 {% load static %}
 
 {% block content %}
+<style>
+  .file {
+  opacity: 0;
+  width: 0.1px;
+  height: 0.1px;
+  position: absolute;
+}
+</style>
+
+<div>
+<p class="h1">
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    {% if user.is_authenticated %}
+    <a href="{% url 'ftp:dashboard' user.username %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"> Dashboard</a><br>
+    {% else %}
+    <a href="{% url 'ftp:home' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"> Home</a>
+    {% endif %}
+  </div>
+</p><br>
+
 <form action = "{% url 'ftp:upload' pk %}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <input type="file" name="myfile"><br><br>
+    <input type="file" id="file" name="myfile">
     <button type="submit">Upload</button>
   </form>
 
   {% if uploaded_file_url %}
     <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
   {% endif %}
-
-  <p><a href="{% url 'ftp:home'  %}">Return to home</a></p>
-
+{% if user.is_authenticated %}
+  <p><a href="{% url 'ftp:dashboard' user.username %}">Return to home</a></p>
+{% else %}
+<p><a href="{% url 'ftp:home' %}">Return to home</a></p>
+{% endif %}
+</div>
 {% endblock %}

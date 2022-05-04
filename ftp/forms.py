@@ -1,44 +1,42 @@
-from cProfile import label
-from dataclasses import field, fields
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 
 class RegisterForm(UserCreationForm):
 	First_Name = forms.CharField(widget=forms.TextInput(attrs={
-		"class":"input",
+		"class":"form-control form-control-user",
 		"type":"text",
-		"placeholder":"enter Firstname",
+		"placeholder":"First Name",
 	}))
 
 	Last_Name = forms.CharField(widget=forms.TextInput(attrs={
-		"class":"input",
+		"class":"form-control form-control-user",
 		"type":"text",
-		"placeholder":"enter Last name",
+		"placeholder":"Last Name",
 	}))
 
 	username = forms.CharField(widget=forms.TextInput(attrs={
-		"class":"input",
+		"class":"form-control form-control-user",
 		"type":"text",
-		"placeholder":"enter Username",
-	}), label="Username")
+		"placeholder":"Username",
+	}))
 
 	email = forms.CharField(widget=forms.TextInput(attrs={
-		"class":"input",
+		"class":"form-control form-control-user",
 		"type":"email",
-		"placeholder":"enter email id",
+		"placeholder":"Email",
 	}))
 	
 	password1 = forms.CharField(widget=forms.TextInput(attrs={
-		"class":"input",
+		"class":"form-control form-control-user",
 		"type":"password",
-		"placeholder":"enter password",
+		"placeholder":"Password",
 	}))
 
 	password2 = forms.CharField(widget=forms.TextInput(attrs={
-		"class":"input",
+		"class":"form-control form-control-user",
 		"type":"password",
-		"placeholder":"re-enter password",
+		"placeholder":"Re-enter Password",
 	}))
 
 	class Meta:
@@ -61,26 +59,16 @@ class CreateDirForm(forms.Form):
    d_name = forms.CharField(max_length = 100)
 
 class UserLoginForm(AuthenticationForm):
-    # def __init__(self, *args, **kwargs):
-    #     super(UserLoginForm, self).__init__(*args, **kwargs)
-
     username = forms.CharField(widget=forms.TextInput(attrs={
-		"class": "form-control form-control-user", 
-		"type":"validate",
-		"placeholder": "Username",
-		"id":"exampleInputEmail"
+			"class":"form-control form-control-user",
+			"type":"text",
+			"placeholder":"Username",
 	}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={
-		"class":"form-control form-control-user",
-		"type":"password",
-		"placeholder":"Enter password",
-		"id":"exampleInputPassword"
+			"class":"form-control form-control-user",
+			"type":"password",
+			"placeholder":"Enter password",
 	}))
-    class Meta:
-         model = User
-         fields = ('username', 'password')
-         #AuthenticationFormFields = ('username', 'password')
-        #  exclude = []
 
 
-	
+   
