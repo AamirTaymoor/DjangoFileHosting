@@ -59,25 +59,16 @@ class CreateDirForm(forms.Form):
    d_name = forms.CharField(max_length = 100)
 
 class UserLoginForm(AuthenticationForm):
-    # username = forms.CharField(widget=forms.TextInput(attrs={
-	# 		"class":"form-control form-control-user",
-	# 		"type":"text",
-	# 		"placeholder":"Username",
-	# }))
-    # password = forms.CharField(widget=forms.PasswordInput(attrs={
-	# 		"class":"form-control form-control-user",
-	# 		"type":"password",
-	# 		"placeholder":"Enter password",
-	# }))
+    username = forms.CharField(widget=forms.TextInput(attrs={
+			"class":"form-control form-control-user",
+			"type":"text",
+			"placeholder":"Username",
+	}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+			"class":"form-control form-control-user",
+			"type":"password",
+			"placeholder":"Enter password",
+	}))
 
 
-    # def __init__(self, *args, **kwargs):
-    #     super(UserLoginForm, self).__init__(*args, **kwargs)	
-	def __init__(self, *args, **kwargs):
-         super().__init__(*args, **kwargs)
-         self.fields['username'].widget = forms.widgets.TextInput(attrs={
-            'class': 'form-control form-control-user'
-        })
-         self.fields['password'].widget = forms.widgets.PasswordInput(attrs={
-            'class': 'form-control form-control-user'
-        })
+   
