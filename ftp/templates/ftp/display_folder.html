@@ -15,7 +15,21 @@
 <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"> -->
 
   <a href="{% url 'ftp:upload' pk %}" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="upload-file"> Upload File</a>
+<!-- modal style -->
+<style>
+  input[type=file]::file-selector-button {
+  border: 2px solid #6c5ce7;
+  padding: .2em .4em;
+  border-radius: .2em;
+  background-color:blue;
+  transition: 1s;
+}
 
+input[type=file]::file-selector-button:hover {
+  background-color: #81ecec;
+  border: 2px solid #00cec9;
+}
+</style>
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -29,8 +43,12 @@
       <div class="modal-body">
         <form method="post" id="upload-form" action = "{% url 'ftp:upload' pk %}"  enctype="multipart/form-data" >
           {% csrf_token %}
-          <input type="file" id="file" name="myfile" style="color: blue;">
+          <!-- <input type="file" id="file" name="myfile" style="color: blue;"> -->
           <!-- <button type="submit" >Upload</button> -->
+          
+            <label for="fileUpload"></label>
+            <input type="file" id="fileUpload" name="myfile">
+          
           <button type="submit" class="btn btn-primary" style="background-color: blue;">Upload</button>
         </form>
       
@@ -39,7 +57,7 @@
         <button type="button" class="btn btn-secondary" data-dismiss="modal" style="background-color: blue;">Cancel</button>
         {% csrf_token %}
         <!-- <button type="submit" class="btn btn-primary" id="confirm-upload">upload</button> -->
-
+        
       </div>
     </div>
   </div>
