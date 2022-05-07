@@ -109,6 +109,7 @@ class UploadView(FormView):
             filename = fs.save(myfile.name, myfile)
             uploaded_file_url = fs.url(filename)
             obj = MyFiles()
+            obj.file_name=filename
             obj.file_path = uploaded_file_url
             obj.user = request.user
             data = Directory.objects.filter(name=pk)[0]
@@ -168,6 +169,14 @@ class DeleteFolder(DeleteView):
     model = Directory
     success_url ="/dashboard/pk"
 
+    # def delete(self, request, *args, **kwargs ):
+    #     self.object = self.get_object()
+    #     success_url = self.get_success_url()
+    #     print(self.object.name)
+    #     self.object.delete()
+    #     return redirect(success_url)
+
+
 @method_decorator(login_required, name='dispatch')
 class DeleteFile(DeleteView):
     model = MyFiles
@@ -180,6 +189,12 @@ class DeleteFile(DeleteView):
         folder_name = str(dir.name)
         print("folder########", folder_name)
         return reverse_lazy('ftp:display_folder-page', kwargs={'pk':folder_name})
-        
+    def delete(self, request, *args, **kwargs ):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        self.object.delete()
+        return redirect(success_url)
+ 
+    
 def about_us(request):
     return render(request, 'ftp/about_us.html')

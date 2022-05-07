@@ -79,19 +79,19 @@ input[type=file]::file-selector-button:hover {
           <a href="{{i.file_path}}">
             <i class="fa-solid fa-file" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
           </a>
-          <span>
-            {{ i.file_path }}
-        </span>
+            <span>
+              {{ i.file_name }}
+          </span>
         </a>
         <span style="line-height:50%">
           <!-- <a href="{% url 'ftp:delete-file' pk=i.id  %}">
           <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal" id="delete-item">Delete</button>
           </a>  -->
-          <a href="{% url 'ftp:delete-file' pk=i.id  %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#delete-item-modal" id="delete-item">
+          <a href="{% url 'ftp:delete-file' pk=i.id  %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#del{{i.id}}" id="delete-item">
             Delete
           </a>
         </div>
-        <div class="modal fade" id="delete-item-modal">
+        <div class="modal fade" id="del{{i.id}}">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-body">
