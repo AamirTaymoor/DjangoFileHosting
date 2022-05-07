@@ -30,9 +30,11 @@
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                 <a href="{% url 'ftp:delete-folder' pk=i.name %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#del{{i.name}}" id="delete-item">              
                                     Delete
+                                    <i class="fa fa-trash" aria-hidden="true" ></i>
                                 </a>
                                 <a href="#" class="dropdown-item text-info" data-toggle="modal" data-target="#edit{{i.name}}" id="edit-item">
                                 Edit Name
+                                <i class="fas fa-edit"></i>
                                 </a>
                             </div>
                         <div class="card-body">
@@ -47,13 +49,14 @@
                                         </span>
                                 </div>
                                             
-                                <div class="col-auto">
+                                <!-- <div class="col-auto">
                                     <i class="fas fa-calendar fa-2x text-gray-300"></i>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
                 </div>  
+                <!-- modal -->
                 <div class="modal fade" id="del{{i.name}}">
                     <div class="modal-dialog">
                         <div class="modal-content">

@@ -205,7 +205,7 @@ class ViewAllFiles(View):
         print('##############')
         #fil = MyFiles.objects.filter(directory=data[0])
         print('****************************')
-        return render(request, 'ftp/display_folder.html', {'d':all_files,'pk':pk})
+        return render(request, 'ftp/all_files.html', {'d':all_files,'pk':pk})
 
     
 def about_us(request):
