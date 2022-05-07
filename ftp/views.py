@@ -17,6 +17,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic.edit import FormView, CreateView
 from django.urls import reverse_lazy, reverse
 from django.utils.functional import lazy
+import os
 
 # Create your views here.
 
@@ -43,7 +44,7 @@ class RegisterView(View):
             # Directory.objects.create()
             return redirect("ftp:login-page")
         messages.error(
-            request, "Unsuccessful registration. Invalid information.")
+            request, "Unsuccessful registration. Username already exists.")
         form = RegisterForm()
         return render(request, "ftp/register_new.html", context={"register_form": form})
 
@@ -110,6 +111,9 @@ class UploadView(FormView):
             uploaded_file_url = fs.url(filename)
             obj = MyFiles()
             obj.file_name=filename
+            print(filename)
+            file_extension= os.path.splitext(filename)[1]
+            obj.file_ext=file_extension
             obj.file_path = uploaded_file_url
             obj.user = request.user
             data = Directory.objects.filter(name=pk)[0]
@@ -194,7 +198,15 @@ class DeleteFile(DeleteView):
         success_url = self.get_success_url()
         self.object.delete()
         return redirect(success_url)
- 
+
+class ViewAllFiles(View):
+    def get(self, request, pk):
+        all_files = MyFiles.objects.filter(user=request.user)
+        print('##############')
+        #fil = MyFiles.objects.filter(directory=data[0])
+        print('****************************')
+        return render(request, 'ftp/display_folder.html', {'d':all_files,'pk':pk})
+
     
 def about_us(request):
     return render(request, 'ftp/about_us.html')

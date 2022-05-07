@@ -22,4 +22,5 @@ urlpatterns = [
     path('about/', views.about_us, name='about'),
     path("del_folder/<str:pk>",views.DeleteFolder.as_view(), name="delete-folder"),
     path("del_file/<int:pk>/",views.DeleteFile.as_view(), name="delete-file"),
+    path("all_files/<str:pk>/",views.ViewAllFiles.as_view(), name="view-all-files"),
 ]

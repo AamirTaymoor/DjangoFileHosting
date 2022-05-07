@@ -1,66 +1,83 @@
 {% extends "ftp/base.html" %}
 {% load static %}
 
+<meta name="viewport" content=
+        "width=device-width, initial-scale=1.0">
+
+    <style>
+    .container {
+        grid-gap: 50px;
+    }
+    </style>
+{% block navbar%}
+<ul class="navbar-nav justify-content-center">
+    <li class="nav-item justify-content-center">
+        <a class="btn btn-primary" href="{% url 'ftp:create-dir' %}" role="button">Create Folder</a>
+    </li>
+</ul>
+{% endblock %}
+
+
 {% block content %}
-
-<style>
-.container {
-    grid-gap: 50px;
-  }
-</style>
-
-<!-- <p class="h1">My Folders</p> -->
-    <div class="container" style="display: flex;">
-
-    
-        {% if context %}
+<div class="row">
+    {% if context %}
         {% for i in context%}
-        
-            <div style="display: flex; flex-direction: column;">
-                <a href="{% url 'ftp:display_folder-page' pk=i.name %}" >
-                    <i class="fa-solid fa-folder" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
-                </a>
-                <span>
-                    {{ i.name }}
-                    {{object.name}}
-                </span>
-                <span style="line-height:50%">
-                    <!-- <a href="{% url 'ftp:delete-folder' pk=i.name%}">
-                        <button type="button" class="btn btn-danger">Delete</button>
-                    </a> -->
-                    <a href="{% url 'ftp:delete-folder' pk=i.name %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#del{{i.name}}" id="delete-item">
-                      
-                        Delete
-                    </a>
-                </span>
-            </div>
-            
-                    <div class="modal fade" id="del{{i.name}}">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <p>Are you sure, You want to remove this item?</p>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary shadow h-100 py-2">
+                            <a class=" dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: azure;">
+                                <i class="fa fa-caret-down fa-3x" style="color: rgb(42, 95, 165);" aria-hidden="true"></i>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                <a href="{% url 'ftp:delete-folder' pk=i.name %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#del{{i.name}}" id="delete-item">              
+                                    Delete
+                                </a>
+                                <a href="#" class="dropdown-item text-info" data-toggle="modal" data-target="#edit{{i.name}}" id="edit-item">
+                                Edit Name
+                                </a>
+                            </div>
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <!-- <div style="display: flex; flex-direction: column;"> -->
+                                        <a href="{% url 'ftp:display_folder-page' pk=i.name %}" >
+                                            <i class="fa-solid fa-folder" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
+                                        </a>
+                                        <span>
+                                            {{ i.name }}
+                                        </span>
                                 </div>
-                                <div class="justify-content-between mb-2 mr-2 text-right">
-                                    <form method="post" id="item-delete-form" action="{% url 'ftp:delete-folder' pk=i.name %}">
-                                        <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger" id="confirm-delete-item-button">Delete</button>
-                                    </form>
+                                            
+                                <div class="col-auto">
+                                    <i class="fas fa-calendar fa-2x text-gray-300"></i>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
-                    {% endif %}
-                <script>
-                    $(document).on('click', '#delete-item', () => {
-                        document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
-                    });
-                </script>
-
-       
+                </div>  
+                <div class="modal fade" id="del{{i.name}}">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <p>Are you sure, You want to remove this item?</p>
+                            </div>
+                            <div class="justify-content-between mb-2 mr-2 text-right">
+                                <form method="post" id="item-delete-form" action="{% url 'ftp:delete-folder' pk=i.name %}">
+                                    <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger" id="confirm-delete-item-button">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        {% endfor %}
+    {% endif %}  
 </div>
 
+<script>
+    $(document).on('click', '#delete-item', () => {
+        document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
+    });
+</script>
 
 {% endblock %}

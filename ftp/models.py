@@ -26,6 +26,7 @@ class MyFiles(models.Model):
     file_path = models.FileField(upload_to=user_directory_path)
     directory = models.ForeignKey(Directory, null=True, on_delete=models.CASCADE)
     file_name=models.CharField(max_length=50, default='file.txt')
+    file_ext = models.CharField(max_length=10, default='.txt')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
