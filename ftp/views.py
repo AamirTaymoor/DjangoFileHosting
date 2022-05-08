@@ -51,7 +51,7 @@ class RegisterView(View):
 
 class LoginRequestView(View):
     def get(self, request):
-        form = AuthenticationForm()
+        form = UserLoginForm()
         return render(request, template_name="ftp/login_new.html", context={"login_form": form})
     
     def post(self, request):
