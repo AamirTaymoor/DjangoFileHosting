@@ -34,17 +34,19 @@ class RegisterView(View):
     def post(self, request):
         form = RegisterForm(request.POST)
         if form.is_valid():
+            uname = form.cleaned_data.get('username')
+            print(uname)
             user = form.save()
             login(request, user)
             messages.success(request, "Registration successful.")
             obj = Directory()
             obj.user = request.user
-            obj.name = 'Home'+str(request.user)
+            obj.name = 'Home'
             obj.save()
             # Directory.objects.create()
             return redirect("ftp:login-page")
         messages.error(
-            request, "Unsuccessful registration. Username already exists.")
+            request, "Unsuccessful registration. Invalid data or Username already exists.")
         form = RegisterForm()
         return render(request, "ftp/register_new.html", context={"register_form": form})
 

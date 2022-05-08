@@ -31,7 +31,7 @@ class RegisterForm(UserCreationForm):
 	password1 = forms.CharField(widget=forms.TextInput(attrs={
 		"class":"form-control form-control-user",
 		"type":"password",
-		"placeholder":"Password",
+		"placeholder":"Password..Min 8 characters",
 	}))
 
 	password2 = forms.CharField(widget=forms.TextInput(attrs={
