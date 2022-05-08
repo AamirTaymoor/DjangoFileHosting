@@ -12,17 +12,48 @@
 {% block navbar%}
 <ul class="navbar-nav justify-content-center">
     <li class="nav-item justify-content-center">
-        <a class="btn btn-primary" href="{% url 'ftp:create-dir' %}" role="button">Create Folder</a>
+        <a href="{% url 'ftp:create-dir' %}" class="btn btn-primary " data-toggle="modal" data-target="#create{{user}}" id="createfolder">Create Folder</a>
+        
+        <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Create Folder
+        </button> -->
     </li>
 </ul>
+
+<!-- Create folder modal -->
+<div class="modal fade" id="create{{user}}">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p>Create New Folder</p>
+            </div>
+            <div class="justify-content-between mb-2 mr-2 text-right">
+                <form method="post" id="item-delete-form" action="{% url 'ftp:create-dir' %}">
+                    {% csrf_token %}
+                    <input type="text" class="form-control" name="d_name" placeholder="Enter folder name"><br>
+                    <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-info" id="confirm-create-folder">Create</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).on('click', '#createfolder', () => {
+        document.getElementById("foldercreateform").action = document.querySelector('#createfolder').href
+    });
+</script>
+
 {% endblock %}
 
 
 {% block content %}
+
 <div class="row">
     {% if context %}
         {% for i in context%}
-                <div class="col-xl-3 col-md-6 mb-4">
+                <div class="col-xl-3 col-md-6 mb-5">
                     <div class="card border-left-primary shadow h-100 py-2">
                             <a class=" dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: azure;">
                                 <i class="fa fa-caret-down fa-3x" style="color: rgb(42, 95, 165);" aria-hidden="true"></i>
@@ -32,7 +63,7 @@
                                     Delete
                                     <i class="fa fa-trash" aria-hidden="true" ></i>
                                 </a>
-                                <a href="#" class="dropdown-item text-info" data-toggle="modal" data-target="#edit{{i.name}}" id="edit-item">
+                                <a href="{% url 'ftp:folder-rename' pk=i.name %}" class="dropdown-item text-info" data-toggle="modal" data-target="#edit{{i.name}}" id="edit-item">
                                 Edit Name
                                 <i class="fas fa-edit"></i>
                                 </a>
@@ -56,7 +87,7 @@
                         </div>
                     </div>
                 </div>  
-                <!-- modal -->
+                <!-- delete modal -->
                 <div class="modal fade" id="del{{i.name}}">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -73,13 +104,40 @@
                         </div>
                     </div>
                 </div>
-        {% endfor %}
+
+                <!-- edit folder modal-->
+                <div class="modal fade" id="edit{{i.name}}">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                <p>Rename Folder</p>
+                            </div>
+                            <div class="justify-content-between mb-2 mr-2 text-right">
+                                <form method="post" id="item-edit-form" action="{% url 'ftp:folder-rename' pk=i.name%}">
+                                    {% csrf_token %}
+                                    <input type="text" class="form-control" name="d_name" placeholder="Enter folder name"><br>
+                                    <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-info" id="confirm-update-folder-button" value="update">Update</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        
+        
+            {% endfor %}
     {% endif %}  
 </div>
 
 <script>
     $(document).on('click', '#delete-item', () => {
         document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
+    });
+</script>
+<script>
+    $(document).on('click', '#edit-item', () => {
+        document.getElementById("item-edit-form").action = document.querySelector('#edit-item').href
     });
 </script>
 

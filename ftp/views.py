@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.views import View
 from django.contrib.auth.models import User
 from requests import delete
-from .forms import RegisterForm, CreateDirForm, UserLoginForm,FileUpload
+from .forms import RegisterForm, CreateDirForm, UserLoginForm,FileUpload, RenameDirForm, RenameFileForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
@@ -11,7 +11,7 @@ from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.decorators import login_required
 from ftp.models import Profile, Directory, MyFiles
 from django.core.files import File
-from django.views.generic import DetailView, ListView, DeleteView
+from django.views.generic import DetailView, ListView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import FormView, CreateView
@@ -119,6 +119,10 @@ class UploadView(FormView):
             data = Directory.objects.filter(name=pk)[0]
             obj.directory = Directory.objects.filter(name=pk)[0]
             obj.save()
+        else:
+            f = MyFiles.objects.filter(directory=data)
+            messages.error(request, "No file selected")
+            return redirect('ftp/display_folder.html', {'pk': pk,'d':f})
         f = MyFiles.objects.filter(directory=data)
         return render(request, 'ftp/display_folder.html', {'pk': pk,'d':f})
     
@@ -129,6 +133,7 @@ class UploadView(FormView):
 @method_decorator(login_required, name='dispatch')
 class CreateFolder(CreateView):
     model=Directory
+    fields = ['name']
 
     def get(self, request):
         form = CreateDirForm()
@@ -139,12 +144,20 @@ class CreateFolder(CreateView):
         if my_form.is_valid():
             dname = my_form.cleaned_data['d_name']
             obj = Directory()
-            obj.user = request.user
-            print(request.user)
-            # d = Directory.objects.get()
-            obj.parent = None
-            obj.name = dname
-            obj.save()
+            folders = Directory.objects.filter(name=dname)
+            print(len(folders))
+            if len(folders) == 0:
+                obj.user = request.user
+                #print("@@@@@@@@@@@@@@@")
+                # d = Directory.objects.get()
+                obj.parent = None
+                obj.name = dname
+                obj.save()
+            else:
+                messages.error(request, "Folder already exists with this name. Try other name")
+                #print("&&&&&&&&&&&&&&&&&&&")
+                return redirect("ftp:dashboard",pk=request.user.username)
+                
         uid = User.objects.get(username=self.request.user)
         context = Directory.objects.filter(user=uid)
         return render(request, 'ftp/dashboard.html',{'context':context})
@@ -187,13 +200,14 @@ class DeleteFile(DeleteView):
 
     def get_success_url(self):
         o_id = self.kwargs.get('pk')
-        print(o_id,"idididididididid")
+        print(o_id,"idididididididid", self.kwargs['pk'])
         dir = MyFiles.objects.get(id = o_id).directory
         print(dir)
         folder_name = str(dir.name)
         print("folder########", folder_name)
         return reverse_lazy('ftp:display_folder-page', kwargs={'pk':folder_name})
     def delete(self, request, *args, **kwargs ):
+        print('*********',kwargs['pk'])
         self.object = self.get_object()
         success_url = self.get_success_url()
         self.object.delete()
@@ -207,6 +221,53 @@ class ViewAllFiles(View):
         print('****************************')
         return render(request, 'ftp/all_files.html', {'d':all_files,'pk':pk})
 
-    
+class FolderRenameView(UpdateView):
+    model = Directory
+    fields = ['name']
+    #template_name_suffix = '_update_form'
+    # def get(self, request):
+    #     form = RenameDirForm()
+    #     return render(request, 'ftp/.html', {'form':form})
+
+    def post(self,request, *args, **kwargs):
+        my_form = RenameDirForm(request.POST)
+        if my_form.is_valid():
+            obj=Directory.objects.filter(user=request.user).filter(name=kwargs['pk'])
+            new_name = my_form.cleaned_data['d_name']
+            all_dirs = Directory.objects.filter(user=request.user).filter(name=new_name)
+            print(new_name, all_dirs, obj)
+            if len(all_dirs) == 0:
+                #Directory.objects.filter(user=request.user).get(name=kwargs['pk']).update(name=new_name)
+                obj.update(name=new_name)
+                return redirect("ftp:dashboard",pk=request.user.username)
+            else:
+                messages.error(request, "Folder name already exists. Try other name ")
+                return redirect("ftp:dashboard",pk=request.user.username)
+
+class FileRenameView(UpdateView):
+    model = MyFiles
+    fields = ['file_name']
+    #template_name_suffix = '_update_form'
+    # def get(self, request):
+    #     form = RenameDirForm()
+    #     return render(request, 'ftp/.html', {'form':form})
+
+    def post(self,request, *args, **kwargs):
+        my_form = RenameFileForm(request.POST)
+        print(kwargs['pk'])
+        if my_form.is_valid():
+            obj=MyFiles.objects.filter(user=request.user).filter(id=kwargs['pk'])
+            new_name = my_form.cleaned_data['d_name']
+            all_files = MyFiles.objects.filter(user=request.user).filter(file_name=new_name)
+            print(new_name, all_files, obj)
+            if len(all_files) == 0:
+                #Directory.objects.filter(user=request.user).get(name=kwargs['pk']).update(name=new_name)
+                obj.update(file_name=new_name)
+                dir = MyFiles.objects.get(id=kwargs['pk']).directory
+                return redirect("ftp:display_folder-page",pk=dir.name)
+            else:
+                messages.error(request, "Folder name already exists. Try other name ")
+                dir = MyFiles.objects.get(id=kwargs['pk']).directory
+                return redirect("ftp:display_folder-page",pk=dir.name)
 def about_us(request):
     return render(request, 'ftp/about_us.html')

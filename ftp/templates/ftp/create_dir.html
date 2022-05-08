@@ -1,4 +1,4 @@
-<html>
+<!-- <html>
    <body>
       <form name = "form" action = "{% url 'ftp:create-dir' %}" 
          method = "POST" >{% csrf_token %}
@@ -6,4 +6,40 @@
                <button type = "submit" value = "Submit" >Create</button>
       </form>
     </body>
-</html>
+</html> -->
+
+<ul class="navbar-nav justify-content-center">
+   <li class="nav-item justify-content-center">
+       <a href="{% url 'ftp:create-dir' %}" class="btn btn-primary " data-toggle="modal" data-target="#create{{user}}" id="createfolder">Create Folder</a>
+       
+       <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+           Create Folder
+       </button> -->
+   </li>
+</ul>
+
+<div class="modal fade" id="create{{user}}">
+   <div class="modal-dialog">
+       <div class="modal-content">
+           <div class="modal-body">
+               <p>Create New Folder</p>
+           </div>
+           <div class="justify-content-between mb-2 mr-2 text-right">
+               <form method="post" id="item-delete-form" action="{% url 'ftp:create-dir' %}">
+                   {% csrf_token %}
+                   {{form}}
+                   <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                   {% csrf_token %}
+                   <button type="submit" class="btn btn-info" id="confirm-create-folder">Create</button>
+               </form>
+           </div>
+       </div>
+   </div>
+</div>
+
+<script>
+   $(document).on('click', '#createfolder', () => {
+       document.getElementById("foldercreateform").action = document.querySelector('#createfolder').href
+   });
+</script>
+

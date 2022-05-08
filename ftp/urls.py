@@ -23,4 +23,6 @@ urlpatterns = [
     path("del_folder/<str:pk>",views.DeleteFolder.as_view(), name="delete-folder"),
     path("del_file/<int:pk>/",views.DeleteFile.as_view(), name="delete-file"),
     path("all_files/<str:pk>/",views.ViewAllFiles.as_view(), name="view-all-files"),
+    path("update_folder/<str:pk>/",views.FolderRenameView.as_view(), name="folder-rename"),
+    path("update_file/<str:pk>/",views.FileRenameView.as_view(), name="file-rename"),
 ]

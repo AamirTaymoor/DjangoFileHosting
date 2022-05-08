@@ -100,6 +100,7 @@ input[type=file]::file-selector-button:hover {
                       </span>
                     </a>
               </div>
+                  <!-- delete modal -->
                     <div class="modal fade" id="del{{i.id}}">
                       <div class="modal-dialog">
                         <div class="modal-content">
@@ -123,6 +124,25 @@ input[type=file]::file-selector-button:hover {
     </div>
 </div>
 </div>
+<!-- edit modal -->
+<div class="modal fade" id="edit{{i.id}}">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-body">
+              <p>Rename File</p>
+          </div>
+          <div class="justify-content-between mb-2 mr-2 text-right">
+              <form method="post" id="item-edit-form" action="{% url 'ftp:file-rename' pk=i.id%}">
+                  {% csrf_token %}
+                  <input type="text" class="form-control" name="d_name" placeholder="Enter New Filename"><br>
+                  <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-info" id="confirm-update-folder-button" value="update">Update</button>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
 
     {% endfor %}      
     {% else %}
@@ -135,6 +155,11 @@ input[type=file]::file-selector-button:hover {
         document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
         });
        </script>
+       <script>
+        $(document).on('click', '#edit-item', () => {
+            document.getElementById("item-edit-form").action = document.querySelector('#edit-item').href
+        });
+    </script>
         
 
 

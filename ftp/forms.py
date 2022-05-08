@@ -59,6 +59,12 @@ class FileUpload(forms.Form):
 class CreateDirForm(forms.Form):
    d_name = forms.CharField(max_length = 100)
 
+class RenameDirForm(forms.Form):
+	d_name = forms.CharField(max_length=20)
+
+class RenameFileForm(forms.Form):
+	d_name = forms.CharField(max_length=20)
+
 class UserLoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={
 			"class":"form-control form-control-user",
