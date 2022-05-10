@@ -1,4 +1,3 @@
-from pyexpat import model
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
@@ -77,7 +76,21 @@ class UserLoginForm(AuthenticationForm):
 			"placeholder":"Enter password",
 	}))
     class Meta:
-	    model = User
-	    fields = ('username', 'password')
+        model = User
+        fields = ('username', 'password')
 
+class ChangePasswordForm(forms.Form):
+	user_name =forms.CharField(widget=forms.TextInput(attrs={
+		"class":"form-control form-control-user",
+		"type":"text",
+		"placeholder":"Enter Your Username",
+	}))
+	pass_word = forms.CharField(widget=forms.PasswordInput(attrs={
+			"class":"form-control form-control-user",
+			"type":"password",
+			"placeholder":"Enter New password",
+	}))
+	# class Meta:
+	# 	model = User
+	# 	fields = ('username','password')
    

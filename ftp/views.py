@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.views import View
 from django.contrib.auth.models import User
 from requests import delete
-from .forms import RegisterForm, CreateDirForm, UserLoginForm,FileUpload, RenameDirForm, RenameFileForm
+from .forms import RegisterForm, CreateDirForm, UserLoginForm,FileUpload, RenameDirForm, RenameFileForm, ChangePasswordForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
@@ -72,7 +72,7 @@ class LoginRequestView(View):
                 return render (request, 'ftp/login_new.html', context={"login_form":form})
         else:
             messages.error(request, "Invalid username or password!!!")
-            form = AuthenticationForm()
+            form = UserLoginForm()
             return render (request, 'ftp/login_new.html', context={"login_form":form})
 
 
@@ -215,6 +215,7 @@ class DeleteFile(DeleteView):
         self.object.delete()
         return redirect(success_url)
 
+@method_decorator(login_required, name='dispatch')
 class ViewAllFiles(View):
     def get(self, request, pk):
         all_files = MyFiles.objects.filter(user=request.user)
@@ -223,6 +224,7 @@ class ViewAllFiles(View):
         print('****************************')
         return render(request, 'ftp/all_files.html', {'d':all_files,'pk':pk})
 
+@method_decorator(login_required, name='dispatch')
 class FolderRenameView(UpdateView):
     model = Directory
     fields = ['name']
@@ -246,6 +248,7 @@ class FolderRenameView(UpdateView):
                 messages.error(request, "Folder name already exists. Try other name ")
                 return redirect("ftp:dashboard",pk=request.user.username)
 
+@method_decorator(login_required, name='dispatch')
 class FileRenameView(UpdateView):
     model = MyFiles
     fields = ['file_name']
@@ -271,5 +274,50 @@ class FileRenameView(UpdateView):
                 messages.error(request, "Folder name already exists. Try other name ")
                 dir = MyFiles.objects.get(id=kwargs['pk']).directory
                 return redirect("ftp:display_folder-page",pk=dir.name)
+
+class ChangePasswordView(View):
+    def get(self, request, *args, **kwargs):
+        my_form = ChangePasswordForm()
+        return render(request, 'ftp/password_change.html',context= {"myform":my_form})
+    def post(self, request,*args, **kwargs):
+        my_form = ChangePasswordForm(request.POST)
+        if my_form.is_valid():
+            uname = my_form.cleaned_data['user_name']
+            new_password = my_form.cleaned_data['pass_word']
+            try:
+                u = User.objects.get(username = uname)
+                print(u)
+                u.set_password(new_password)
+                u.save()
+                print('^^^^^^^^^^^^^^')
+                messages.success(request, "Password changed!!")
+                return redirect("ftp:login-page")
+            except :
+                messages.error(request, "Username does not exist!!! Enter registered Username.")
+                print('~~~~~~~~~~~~~~~~~~')
+                return redirect("ftp:change-password")
+
+@method_decorator(login_required, name='dispatch')
+class SearchView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'ftp/search_results.html')
+    
+    def post(self, request, *args, **kwargs):
+        searched = request.POST.get('searched')
+        pk = kwargs['pk']
+        print(pk)
+        print(type(searched))
+        if len(searched) != 0:
+            print('nothing to search')
+            #folders = Directory.objects.filter(user=request.user).filter(name__icontains=searched)
+            #print(folders)
+            files = MyFiles.objects.filter(user=request.user).filter(file_name__icontains=searched)
+            #print(files)
+            return render (request, 'ftp/all_files.html', {'d':files,'pk':pk})
+        else:
+            messages.error(request, "Enter some text to search")
+            return redirect("ftp:dashboard", pk=request.user.username)
+    
+                
 def about_us(request):
     return render(request, 'ftp/about_us.html')

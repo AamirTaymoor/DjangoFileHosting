@@ -25,4 +25,6 @@ urlpatterns = [
     path("all_files/<str:pk>/",views.ViewAllFiles.as_view(), name="view-all-files"),
     path("update_folder/<str:pk>/",views.FolderRenameView.as_view(), name="folder-rename"),
     path("update_file/<str:pk>/",views.FileRenameView.as_view(), name="file-rename"),
+    path("change_password/",views.ChangePasswordView.as_view(), name="change-password"),
+    path("search/<str:pk>",views.SearchView.as_view(), name="search"),
 ]

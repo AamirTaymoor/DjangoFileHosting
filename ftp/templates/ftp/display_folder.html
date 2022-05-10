@@ -59,13 +59,13 @@ input[type=file]::file-selector-button:hover {
 {% if d %}
 {% for i in d %}
 <div class="col-xl-3 col-md-6 mb-4">
-            
+
   <div class="card border-left-primary shadow h-100 py-2">
       <a class=" dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: azure;">
           <i class="fa fa-caret-down fa-3x" style="color: rgb(42, 95, 165);" aria-hidden="true"></i>
       </a>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-          <a href="{% url 'ftp:delete-file' pk=i.id %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#del{{i.id}}" id="delete-item">              
+          <a href="{% url 'ftp:delete-file' pk=i.id %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#del{{i.id}}" id="delete-item">
               Delete
               <i class="fa fa-trash" aria-hidden="true" ></i>
 
@@ -81,6 +81,8 @@ input[type=file]::file-selector-button:hover {
                       <a href="{{i.file_path}}">
                       {% if i.file_ext == '.txt' %}
                         <i class="fa-solid fa-file" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
+                        {% elif i.file_ext == '.docx' or i.file_ext == '.odt' %}
+                        <i class="fa-solid fa-file-word"></i>
                         {% elif i.file_ext == '.pptx' %}
                         <i class="fas fa-file-powerpoint" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
                         {% elif i.file_ext == '.csv' %}
@@ -91,8 +93,10 @@ input[type=file]::file-selector-button:hover {
                       <i class="fas fa-video" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
                       {% elif i.file_ext == '.jpg' or i.file_ext == '.jpeg' or i.file_ext == '.png' or i.file_ext == '.gif'%}
                       <i class="fas fa-image" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
+                      {% elif i.file_ext == '.html' or i.file_ext == '.py' or i.file_ext == '.css' or i.file_ext == '.js' or i.file_ext == '.xml' or i.file_ext == '.json' %}
+                      <i class="fas fa-file-code" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
                       {% else %}
-                        File format not identified
+                        <i class="fas fa-question"></i>
                       {% endif %}
                       </a>
                       <span>
@@ -144,9 +148,9 @@ input[type=file]::file-selector-button:hover {
   </div>
 </div>
 
-    {% endfor %}      
+    {% endfor %}
     {% else %}
-        
+
             <div>No Files </div>
     {% endif %}
 
@@ -160,7 +164,7 @@ input[type=file]::file-selector-button:hover {
             document.getElementById("item-edit-form").action = document.querySelector('#edit-item').href
         });
     </script>
-        
+
 
 
 </div>
