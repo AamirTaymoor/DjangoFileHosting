@@ -45,7 +45,7 @@ class RegisterView(View):
             obj.save()
             # Directory.objects.create()
             return redirect("ftp:login-page")
-        messages.error(
+        messages.warning(
             request, "Unsuccessful registration. Invalid data or Username already exists.")
         form = RegisterForm()
         return render(request, "ftp/register_new.html", context={"register_form": form})
@@ -67,11 +67,11 @@ class LoginRequestView(View):
                 messages.info(request, f"You are now logged in as {username}.")
                 return redirect("ftp:dashboard",pk=user.username)
             else:
-                messages.error(request, "Invalid username or password!!!")
+                messages.warning(request, "Invalid username or password!!!")
                 form = AuthenticationForm()
                 return render (request, 'ftp/login_new.html', context={"login_form":form})
         else:
-            messages.error(request, "Invalid username or password!!!")
+            messages.warning(request, "Invalid username or password!!!")
             form = UserLoginForm()
             return render (request, 'ftp/login_new.html', context={"login_form":form})
 
@@ -106,8 +106,8 @@ class UploadView(FormView):
     success_url = 'ftp/display_folder.html'
 
     def post(self, request, pk):
-        if request.FILES['myfile']:
-            myfile = request.FILES['myfile']
+        if request.FILES.get('myfile'):
+            myfile = request.FILES.get('myfile')
             fs = FileSystemStorage()
             filename = fs.save(myfile.name, myfile)
             uploaded_file_url = fs.url(filename)
@@ -121,10 +121,12 @@ class UploadView(FormView):
             data = Directory.objects.filter(name=pk)[0]
             obj.directory = Directory.objects.filter(name=pk)[0]
             obj.save()
+            messages.success(request, "File uploaded successfully")
         else:
-            f = MyFiles.objects.filter(directory=data)
-            messages.error(request, "No file selected")
-            return redirect('ftp/display_folder.html', {'pk': pk,'d':f})
+            data = Directory.objects.filter(name=pk)[0]
+            f1 = MyFiles.objects.filter(directory=data)
+            messages.warning(request, "No file selected")
+            return render(request, 'ftp/display_folder.html', {'pk': pk,'d':f1})
         f = MyFiles.objects.filter(directory=data)
         return render(request, 'ftp/display_folder.html', {'pk': pk,'d':f})
     
@@ -155,8 +157,9 @@ class CreateFolder(CreateView):
                 obj.parent = None
                 obj.name = dname
                 obj.save()
+                messages.success(request, "Folder created successfully")
             else:
-                messages.error(request, "Folder already exists with this name. Try other name")
+                messages.warning(request, "Folder already exists with this name. Try other name")
                 #print("&&&&&&&&&&&&&&&&&&&")
                 return redirect("ftp:dashboard",pk=request.user.username)
                 
@@ -239,13 +242,23 @@ class FolderRenameView(UpdateView):
             obj=Directory.objects.filter(user=request.user).filter(name=kwargs['pk'])
             new_name = my_form.cleaned_data['d_name']
             all_dirs = Directory.objects.filter(user=request.user).filter(name=new_name)
+            related_files = MyFiles.objects.filter(user= request.user).filter(directory=obj[0])
+
             print(new_name, all_dirs, obj)
             if len(all_dirs) == 0:
                 #Directory.objects.filter(user=request.user).get(name=kwargs['pk']).update(name=new_name)
-                obj.update(name=new_name)
+                if len(related_files) != 0:
+                    new_dir = Directory(user=request.user, name=new_name, parent=None)
+                    new_dir.save()
+                    related_files.update(directory=new_dir)
+                    for i in obj:
+                        obj.delete()
+                else:
+                    obj.update(name=new_name)
+                messages.success(request, "Folder renamed successfully")
                 return redirect("ftp:dashboard",pk=request.user.username)
             else:
-                messages.error(request, "Folder name already exists. Try other name ")
+                messages.warning(request, "Folder name already exists. Try other name ")
                 return redirect("ftp:dashboard",pk=request.user.username)
 
 @method_decorator(login_required, name='dispatch')
@@ -269,9 +282,10 @@ class FileRenameView(UpdateView):
                 #Directory.objects.filter(user=request.user).get(name=kwargs['pk']).update(name=new_name)
                 obj.update(file_name=new_name)
                 dir = MyFiles.objects.get(id=kwargs['pk']).directory
+                messages.success(request, "File renamed successfully")
                 return redirect("ftp:display_folder-page",pk=dir.name)
             else:
-                messages.error(request, "Folder name already exists. Try other name ")
+                messages.warning(request, "Filename already exists. Try other name ")
                 dir = MyFiles.objects.get(id=kwargs['pk']).directory
                 return redirect("ftp:display_folder-page",pk=dir.name)
 
@@ -293,7 +307,7 @@ class ChangePasswordView(View):
                 messages.success(request, "Password changed!!")
                 return redirect("ftp:login-page")
             except :
-                messages.error(request, "Username does not exist!!! Enter registered Username.")
+                messages.warning(request, "Username does not exist!!! Enter registered Username.")
                 print('~~~~~~~~~~~~~~~~~~')
                 return redirect("ftp:change-password")
 
@@ -315,7 +329,7 @@ class SearchView(View):
             #print(files)
             return render (request, 'ftp/all_files.html', {'d':files,'pk':pk})
         else:
-            messages.error(request, "Enter some text to search")
+            messages.warning(request, "Enter some text to search")
             return redirect("ftp:dashboard", pk=request.user.username)
     
                 
