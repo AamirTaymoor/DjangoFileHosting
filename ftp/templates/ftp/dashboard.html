@@ -35,7 +35,7 @@
                 <div class="justify-content-between mb-2 mr-2 text-right">
                     <form method="post" id="item-delete-form" action="{% url 'ftp:create-dir' %}">
                         {% csrf_token %}
-                        <input type="text" class="form-control" name="d_name" placeholder="Enter folder name here.."><br>
+                        <input type="text" class="form-control" name="d_name" placeholder="Enter folder name here.." required><br>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
                         {% csrf_token %}
@@ -135,7 +135,7 @@
                                 <div class="justify-content-between mb-2 mr-2 text-right">
                                     <form method="post" id="item-edit-form" action="{% url 'ftp:folder-rename' pk=i.name%}">
                                         {% csrf_token %}
-                                        <input type="text" class="form-control" name="d_name" placeholder="Enter new folder name here.."><br>
+                                        <input type="text" class="form-control" name="d_name" placeholder="Enter new folder name here.." required><br>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
                                         {% csrf_token %}

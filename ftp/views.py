@@ -22,7 +22,10 @@ import os
 # Create your views here.
 
 def Home(request):
-    return render(request, "ftp/home.html")
+    if request.user.is_authenticated:
+        return redirect("ftp:dashboard",pk=request.user.username)
+    
+    return redirect("ftp:login-page")
 
 
 class RegisterView(View):
@@ -162,6 +165,7 @@ class CreateFolder(CreateView):
                 messages.warning(request, "Folder already exists with this name. Try other name")
                 #print("&&&&&&&&&&&&&&&&&&&")
                 return redirect("ftp:dashboard",pk=request.user.username)
+           
                 
         uid = User.objects.get(username=self.request.user)
         context = Directory.objects.filter(user=uid)
@@ -189,7 +193,11 @@ class ProfileView(ListView):
 @method_decorator(login_required, name='dispatch')
 class DeleteFolder(DeleteView):
     model = Directory
-    success_url ="/dashboard/pk"
+
+    def get_success_url(self):
+        u = self.request.user.username
+        messages.info(self.request, "Folder deleted!!")
+        return reverse_lazy('ftp:dashboard', kwargs={'pk':u})
 
     # def delete(self, request, *args, **kwargs ):
     #     self.object = self.get_object()
@@ -209,6 +217,7 @@ class DeleteFile(DeleteView):
         dir = MyFiles.objects.get(id = o_id).directory
         print(dir)
         folder_name = str(dir.name)
+        messages.info(self.request, "File deleted!!")
         print("folder########", folder_name)
         return reverse_lazy('ftp:display_folder-page', kwargs={'pk':folder_name})
     def delete(self, request, *args, **kwargs ):
