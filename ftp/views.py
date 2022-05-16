@@ -1,3 +1,4 @@
+import email
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import View
@@ -9,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.decorators import login_required
-from ftp.models import Profile, Directory, MyFiles
+from ftp.models import  Directory, MyFiles, Profile
 from django.core.files import File
 from django.views.generic import DetailView, ListView, DeleteView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -38,7 +39,7 @@ class RegisterView(View):
         form = RegisterForm(request.POST)
         if form.is_valid():
             uname = form.cleaned_data.get('username')
-            print(uname)
+            print(uname,)
             user = form.save()
             login(request, user)
             messages.success(request, "Registration successful.")
@@ -187,7 +188,7 @@ class ProfileView(ListView):
     model = Profile
 
     def get(self,request):
-        p = Profile.objects.filter(user=request.user)[0]
+        p = Profile.objects.get(user=request.user)
         return render(request, 'ftp/profile.html', {'p':p})
 
 @method_decorator(login_required, name='dispatch')

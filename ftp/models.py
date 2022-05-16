@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -10,7 +11,6 @@ def user_directory_path(instance, filename):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    #my_files = models.FileField(upload_to=user_directory_path, blank=True)
     firstname = models.CharField(max_length=50, null=True)
     lastname = models.CharField(max_length=50, null=True)
 
@@ -18,11 +18,13 @@ class Profile(models.Model):
         return self.user.username
 
 class Directory(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50, primary_key=True)
+    name = models.CharField(max_length=50)
     parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
 
 class MyFiles(models.Model):
+    id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     file_path = models.FileField(upload_to=user_directory_path)
     directory = models.ForeignKey(Directory, null=True, on_delete=models.CASCADE)
     file_name=models.CharField(max_length=50, default='file.txt')
