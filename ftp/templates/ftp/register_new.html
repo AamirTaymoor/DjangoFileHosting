@@ -32,6 +32,24 @@
                 <div class="row">
                     <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
                     <div class="col-lg-7">
+                        <!-- {% if messages %}
+                        <div class="messages" style="list-style-type:none;">
+                            {% for message in messages %}
+                            <li{% if message.tags %} class="alert alert-{{ message.tags }}" {% endif %} role="alert">{{ message }}
+                                </li>
+                                {% endfor %}
+                        </div>
+                        {% endif %} -->
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                         <div class="p-5">
                             <div class="text-center">
                                 <h1 class="h4 text-gray-900 mb-4">Create an Account!</h1>
@@ -70,20 +88,20 @@
                                 <!-- </a>  -->
                                 <div class="container bg-light">
                                     <div class="col-md-12 text-center">
-                                        <input class="btn btn-primary" type="submit" value="Create Account">
+                                        <input class="btn btn-primary btn-user btn-block" type="submit" value="Create Account">
                                     </div>
                                 </div>
-                                <hr>
-                                <a href="#" class="btn btn-google btn-user btn-block">
+                                <!-- <hr> -->
+                                <!-- <a href="#" class="btn btn-google btn-user btn-block">
                                     <i class="fab fa-google fa-fw"></i> Register with Google
                                 </a>
                                 <a href="#" class="btn btn-facebook btn-user btn-block">
                                     <i class="fab fa-facebook-f fa-fw"></i> Register with Facebook
-                                </a>
+                                </a> -->
                             </form>
                             <hr>
                             <div class="text-center">
-                                <a class="small" href="#">Forgot Password?</a>
+                                <a class="small" href="{% url 'ftp:change-password' %}">Forgot Password?</a>
                             </div>
                             <div class="text-center">
                                 <a class="small" href="{% url 'ftp:login-page' %}">Already have an account? Login!</a>

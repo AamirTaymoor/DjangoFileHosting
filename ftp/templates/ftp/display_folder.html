@@ -1,37 +1,16 @@
 {% extends "ftp/base.html" %}
 {% load static %}
-{% block content %}
-<style>
- 
+{% block navbar%}
+<ul class="navbar-nav  justify-content-center">
+  <li class="nav-item justify-content-center">
+      <!-- <a class="btn btn-primary" href="{% url 'ftp:upload' pk %}" role="button">Upload File</a> -->
+      <a href="{% url 'ftp:upload' pk %}" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="uploadfile"> Upload File</a>
+  </li>
+</ul>
 
-</style>
-
-<!-- <p class="h1">
-  <div class="d-sm-flex align-items-center justify-content-between mb-4">
-  
-    <a href="{% url 'ftp:upload' pk %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"> Upload File</a>
-</div>
-</p> -->
-<!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"> -->
-
-  <a href="{% url 'ftp:upload' pk %}" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="upload-file"> Upload File</a>
-<!-- modal style -->
-<style>
-  input[type=file]::file-selector-button {
-  border: 2px solid #6c5ce7;
-  padding: .2em .4em;
-  border-radius: .2em;
-  background-color:blue;
-  transition: 1s;
-}
-
-input[type=file]::file-selector-button:hover {
-  background-color: #81ecec;
-  border: 2px solid #00cec9;
-}
-</style>
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- file upload Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -41,84 +20,180 @@ input[type=file]::file-selector-button:hover {
         </button>
       </div>
       <div class="modal-body">
-        <form method="post" id="upload-form" action = "{% url 'ftp:upload' pk %}"  enctype="multipart/form-data" >
+        <p>upload file:</p>
+        <form method="post" id="upload-form" action="{% url 'ftp:upload' pk %}" enctype="multipart/form-data">
           {% csrf_token %}
-          <!-- <input type="file" id="file" name="myfile" style="color: blue;"> -->
-          <!-- <button type="submit" >Upload</button> -->
+          <label for="fileUpload"></label>
+          <input type="file" id="fileUpload" name="myfile" >
+        <div class="modal-footer">
+          <!-- <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" style="background-color: rgb(43, 83, 197);">Upload</button> -->
           
-            <label for="fileUpload"></label>
-            <input type="file" id="fileUpload" name="myfile">
-          
-          <button type="submit" class="btn btn-primary" style="background-color: blue;">Upload</button>
-        </form>
-      
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal" style="background-color: blue;">Cancel</button>
+        </form><br>
+        <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
         {% csrf_token %}
-        <!-- <button type="submit" class="btn btn-primary" id="confirm-upload">upload</button> -->
-        
+        <button type="submit" class="btn btn-primary" id="confirm-upload-file">Upload</button>
+      </div>
       </div>
     </div>
   </div>
-</div> 
+</div>
+<script>
+  $(document).on('click', '#uploadfile', () => {
+        document.getElementById("upload-form").action = document.querySelector('#uploadfile').href
+    });
+</script>
+{% endblock %}
+{% block content %}
+<!-- modal style -->
+<style>
+  input[type=file]::file-selector-button {
+  border: 2px solid #6c5ce7;
+  padding: .2em .4em;
+  border-radius: .2em;
 
-<!-- <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
-<ul class="nav nav-pills nav-justified mb-3" id="ex1" role="tablist">
-    <li class="nav-item" role="presentation">
-      <a class="nav-link active" id="tab-login" data-mdb-toggle="pill" href="{% url 'ftp:upload' pk%}" role="tab"
-        aria-controls="pills-login" aria-selected="true">Upload File</a>
-    </li>
-    
-  </ul> -->
+  transition: 1s;
+}
 
-  <div class="container" style="display: flex;">
+input[type=file]::file-selector-button:hover {
+  background-color: #81ecec;
+  border: 2px solid #00cec9;
+}
+</style>
+
+<div class="row">
 {% if d %}
 {% for i in d %}
-        <div style="display: flex; flex-direction: column;">
+
+<div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
+  <div class="col mr-2">
+      <div style="display: flex; flex-direction: column;">
+          <div class="container">
+              <a class=" dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: azure;">
+                  <i class="fa fa-caret-down fa-2x" style="color: #6586E7; position: absolute; left: 60px;" aria-hidden="true"></i>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <a href="{% url 'ftp:delete-file' pk=i.id %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#del{{i.id}}" id="delete-item">              
+                      Delete
+                      <i class="fa fa-trash" aria-hidden="true" ></i>
+                  </a>
+                  <a href="#" class="dropdown-item text-info" data-toggle="modal" data-target="#edit{{i.id}}" id="edit-item">
+                  Edit Name
+                  <i class="fas fa-edit"></i>
+                  </a>
+              </div>
+          </div>
+          <div>
           <a href="{{i.file_path}}">
-            <i class="fa-solid fa-file" style="font-size: 4rem; color: rgb(111, 111, 206);"></i>
-          </a>
-          <span>
-            {{ i.file_path }}
-        </span>
-        </a>
-        <span style="line-height:50%">
-          <!-- <a href="{% url 'ftp:delete-file' pk=i.id  %}">
-          <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal" id="delete-item">Delete</button>
-          </a>  -->
-          <a href="{% url 'ftp:delete-file' pk=i.id  %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#delete-item-modal" id="delete-item">
-            Delete
-          </a>
-        </div>
-        <div class="modal fade" id="delete-item-modal">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-body">
-                <p>Are you sure, You want to remove this item?</p>
-              </div>
-              <div class="justify-content-between mb-2 mr-2 text-right">
-                <form method="post" id="item-delete-form" action="{% url 'ftp:delete-file' pk=i.id %}">
-                  <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-danger" id="confirm-delete-item-button">Delete</button>
-                </form>
-              </div>
+            {% if i.file_ext == '.txt' %}
+            
+              <i class="fa-solid fa-file-lines" style="font-size: 4rem; color: #6586E7;"></i>
+              {% elif i.file_ext == '.docx' or i.file_ext == '.odt' %}
+              <i class="fa-solid fa-file-word"></i>
+              {% elif i.file_ext == '.pptx' %}
+              <i class="fas fa-file-powerpoint" style="font-size: 4rem; color: #6586E7;"></i>
+              {% elif i.file_ext == '.csv' %}
+              <i class="fas fa-file-csv" style="font-size: 4rem; color: #6586E7;"></i>
+            {% elif i.file_ext == '.pdf' %}
+            <i class="fa-solid fa-file-pdf" style="font-size: 4rem; color: #6586E7;"></i>
+            {% elif i.file_ext == '.mp4' or i.file_ext == '.mpeg-4' or i.file_ext == '.avi' or i.file_ext == '.mov' or i.file_ext == '.mkv'%}
+            <i class="fas fa-video" style="font-size: 4rem; color: #6586E7;"></i>
+            {% elif i.file_ext == '.jpg' or i.file_ext == '.jpeg' or i.file_ext == '.png' or i.file_ext == '.gif'%}
+            <i class="fas fa-image" style="font-size: 4rem; color: #6586E7;"></i>
+            {% elif i.file_ext == '.html' or i.file_ext == '.py' or i.file_ext == '.css' or i.file_ext == '.js' or i.file_ext == '.xml' or i.file_ext == '.json' %}
+            <i class="fas fa-file-code" style="font-size: 4rem; color: #6586E7;"></i>
+            {% elif i.file_ext == '.xls' or i.file_ext == '.xlsx' or i.file_ext == '.xlsm' or i.file_ext == '.xlsb' %}
+            <i class="fas fa-file-excel" style="font-size: 4rem; color: #6586E7;"></i>
+            {% else %}
+            <i class="fa-solid fa-file" style="font-size: 4rem; color: #6586E7;"></i>
+            {% endif %}
+            </a> 
+            
+          </div>
+          
+            <span style="word-wrap: break-word;"> 
+           
+              {{ i.file_name }}
+           
+            </span>
+      
+      </div>
+    </div>
+  </div>
+
+<!-- delete modal -->
+<div class="modal fade" id="del{{i.id}}">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" style="color: rgb(43, 83, 197);">File Delete</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
             </div>
+            <div class="modal-body">
+                <p>Are you sure to delete file {{i.file_name}}</p>
+            </div>
+            <div class="modal-footer">
+                <div class="justify-content-between mb-2 mr-2 text-right">
+                    <form method="post" id="item-delete-form" action="{% url 'ftp:delete-file' pk=i.id %}">
+                        <button type="button" class="btn btn-primary mr-1" data-dismiss="modal">Cancel</button>
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger" id="confirm-delete-item-button">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+    <!-- edit modal -->
+    <div class="modal fade" id="edit{{i.id}}">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" style="color: rgb(43, 83, 197);">Edit File Name</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+          </div>
+          <div class="modal-body">
+            <p>Are you sure to rename {{i.file_name}}?</p>
+          
+    
+          <div class="justify-content-between mb-2 mr-2 text-right">
+            <form method="post" id="item-edit-form" action="{% url 'ftp:file-rename' pk=i.id %}">
+              {% csrf_token %}
+              <input type="text" class="form-control" name="d_name" placeholder="Enter new name for file here .." required><br>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary" id="confirm-update-folder-button"
+                  value="update">Rename</button>
+            </form>
           </div>
         </div>
-        
+      </div>
+    </div>
+    </div>
+</div>
+
+
+    {% endfor %}
+    {% else %}
+
+         No Files 
+    {% endif %}
+
         <script>
            $(document).on('click', '#delete-item', () => {
         document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
         });
        </script>
-        
-{% endfor %}      
-{% else %}
-    
-        <div>No Files in this folder</div>
-{% endif %}
+       <script>
+        $(document).on('click', '#edit-item', () => {
+            document.getElementById("item-edit-form").action = document.querySelector('#edit-item').href
+        });
+    </script>
 
-</div>
+
+
+
 {% endblock %}
