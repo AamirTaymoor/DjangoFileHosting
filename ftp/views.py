@@ -1,4 +1,3 @@
-import email
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views import View
@@ -25,7 +24,7 @@ import os
 def Home(request):
     if request.user.is_authenticated:
         return redirect("ftp:dashboard",pk=request.user.username)
-    
+
     return redirect("ftp:login-page")
 
 
@@ -59,7 +58,7 @@ class LoginRequestView(View):
     def get(self, request):
         form = UserLoginForm()
         return render(request, template_name="ftp/login_new.html", context={"login_form": form})
-    
+
     def post(self, request):
         form = UserLoginForm(request, data=request.POST)
         if form.is_valid():
@@ -94,19 +93,19 @@ class Dashboard(DetailView):
 
     def get_queryset(self):
         uid = User.objects.get(username=self.request.user)
-        self.queryset = Directory.objects.filter(user=uid)
-        #print(self.queryset.filter(user=uid))
-        return self.queryset.filter(user=uid)
-    
+        self.queryset = Directory.objects.filter(user=uid).filter(is_deleted='False')
+        print(type(self.queryset))
+        return self.queryset
+
     def get(self, request,pk):
         context = self.get_queryset()
-        return render(request,"ftp/dashboard.html", {'context':context})
+        return render(request,"ftp/dashboard.html", {'context':context,})
 
 
 @method_decorator(login_required, name='dispatch')
 class UploadView(FormView):
     form_class = FileUpload
-    template_name = 'upload_file.html'  
+    template_name = 'upload_file.html'
     success_url = 'ftp/display_folder.html'
 
     def post(self, request, pk):
@@ -133,7 +132,7 @@ class UploadView(FormView):
             return render(request, 'ftp/display_folder.html', {'pk': pk,'d':f1})
         f = MyFiles.objects.filter(directory=data)
         return render(request, 'ftp/display_folder.html', {'pk': pk,'d':f})
-    
+
     def get(self, request, pk):
         return render(request, 'ftp/upload_file.html' ,{'pk':pk})
 
@@ -146,13 +145,13 @@ class CreateFolder(CreateView):
     def get(self, request):
         form = CreateDirForm()
         return render(request, 'ftp/create_dir.html', {'form':form})
-    
+
     def post(self, request):
         my_form = CreateDirForm(request.POST)
         if my_form.is_valid():
             dname = my_form.cleaned_data['d_name']
             obj = Directory()
-            folders = Directory.objects.filter(name=dname)
+            folders = Directory.objects.filter(name=dname).filter(is_deleted='False').filter(user=request.user)
             print(len(folders))
             if len(folders) == 0:
                 obj.user = request.user
@@ -166,19 +165,19 @@ class CreateFolder(CreateView):
                 messages.warning(request, "Folder already exists with this name. Try other name")
                 #print("&&&&&&&&&&&&&&&&&&&")
                 return redirect("ftp:dashboard",pk=request.user.username)
-           
-                
+
+
         uid = User.objects.get(username=self.request.user)
-        context = Directory.objects.filter(user=uid)
+        context = Directory.objects.filter(user=uid).filter(is_deleted='False')
         return render(request, 'ftp/dashboard.html',{'context':context})
 
 
 @method_decorator(login_required, name='dispatch')
 class FolderView(View):
     def get(self, request, pk):
-        data = Directory.objects.filter(name=pk).filter(user=request.user)
+        data = Directory.objects.filter(name=pk).filter(user=request.user).filter(is_deleted='False')
         print('##############')
-        fil = MyFiles.objects.filter(directory=data[0])
+        fil = MyFiles.objects.filter(directory=data[0]).filter(is_deleted='False')
         print('****************************')
         return render(request, 'ftp/display_folder.html', {'d':fil,'pk':pk})
 
@@ -204,9 +203,23 @@ class DeleteFolder(DeleteView):
     #     self.object = self.get_object()
     #     success_url = self.get_success_url()
     #     print(self.object.name)
-    #     self.object.delete()
+    #     #self.object.delete()
+    #     self.object.is_deleted = True
+    #     print("@@@@@@@@@@@@@@@")
     #     return redirect(success_url)
 
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        success_url = self.get_success_url()
+        print(self.object.name)
+        #self.object.delete()
+        self.object.is_deleted = True
+        r_files = MyFiles.objects.filter(user=request.user).filter(directory= self.object)
+        r_files.update(is_deleted=True)
+        self.object.save()
+        print("@@@@@@@@@@@@@@@")
+        print(self.object.is_deleted)
+        return redirect(success_url)
 
 @method_decorator(login_required, name='dispatch')
 class DeleteFile(DeleteView):
@@ -221,17 +234,25 @@ class DeleteFile(DeleteView):
         messages.info(self.request, "File deleted!!")
         print("folder########", folder_name)
         return reverse_lazy('ftp:display_folder-page', kwargs={'pk':folder_name})
-    def delete(self, request, *args, **kwargs ):
-        print('*********',kwargs['pk'])
+
+    # def delete(self, request, *args, **kwargs ):
+    #     print('*********',kwargs['pk'])
+    #     self.object = self.get_object()
+    #     success_url = self.get_success_url()
+    #     self.object.delete()
+    #     return redirect(success_url)
+
+    def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        success_url = self.get_success_url()
-        self.object.delete()
+        success_url= self.get_success_url()
+        self.object.is_deleted = True
+        self.object.save()
         return redirect(success_url)
 
 @method_decorator(login_required, name='dispatch')
 class ViewAllFiles(View):
     def get(self, request, pk):
-        all_files = MyFiles.objects.filter(user=request.user)
+        all_files = MyFiles.objects.filter(user=request.user).filter(is_deleted='False')
         print('##############')
         #fil = MyFiles.objects.filter(directory=data[0])
         print('****************************')
@@ -325,7 +346,7 @@ class ChangePasswordView(View):
 class SearchView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'ftp/search_results.html')
-    
+
     def post(self, request, *args, **kwargs):
         searched = request.POST.get('searched')
         pk = kwargs['pk']
@@ -341,7 +362,12 @@ class SearchView(View):
         else:
             messages.warning(request, "Enter some text to search")
             return redirect("ftp:dashboard", pk=request.user.username)
-    
-                
+
+class TrashView(View):
+    def get(self, request, *args, **kwargs):
+        d = Directory.objects.filter(user= request.user).filter(is_deleted ='True')
+        f = MyFiles.objects.filter(user=request.user).filter(is_deleted='True')
+        return render(request, 'ftp/trash.html', {'d':d, 'f':f })
+
 def about_us(request):
     return render(request, 'ftp/about_us.html')

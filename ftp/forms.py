@@ -39,9 +39,9 @@ class RegisterForm(UserCreationForm):
 		"placeholder":"Re-enter Password",
 	}))
 
-	class Meta:
-		model = User
-		fields = ("First_Name","Last_Name", "username", "email", "password1", "password2")
+	# class Meta:
+	# 	model = User
+	# 	fields = ("First_Name","Last_Name", "username", "email", "password1", "password2")
 
 	def save(self, commit=True):
 		user = super(RegisterForm, self).save(commit=True)
@@ -75,9 +75,9 @@ class UserLoginForm(AuthenticationForm):
 			"type":"password",
 			"placeholder":"Enter password",
 	}))
-    class Meta:
-        model = User
-        fields = ('username', 'password')
+    # class Meta:
+    #     model = User
+    #     fields = ('username', 'password')
 
 class ChangePasswordForm(forms.Form):
 	user_name =forms.CharField(widget=forms.TextInput(attrs={

@@ -23,4 +23,5 @@ urlpatterns = [
     path("update_file/<str:pk>/",views.FileRenameView.as_view(), name="file-rename"),
     path("change_password/",views.ChangePasswordView.as_view(), name="change-password"),
     path("search/<str:pk>",views.SearchView.as_view(), name="search"),
+    path("trash/",views.TrashView.as_view(), name="trash"),
 ]

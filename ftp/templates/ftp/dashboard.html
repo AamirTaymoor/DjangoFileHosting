@@ -66,6 +66,7 @@
                     
                                 <div class="col mr-2">
                                     <div style="display: flex; flex-direction: column;">
+                                        
                                         <div class="container">
                                             <a class=" dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: azure;">
                                                 <i class="fa fa-caret-down fa-2x" style="color: #6586E7; position: absolute; left: 60px;" aria-hidden="true"></i>
@@ -81,9 +82,10 @@
                                                 </a>
                                             </div>
                                        </div>
+                                       
                                        <div>
                                             <a href="{% url 'ftp:display_folder-page' pk=i.name %}" >
-                                                <i class="fa-solid fa-folder" style="font-size: 4rem; color: #6586E7;"></i>
+                                                <i class="fa-solid fa-folder" style="font-size: 4rem; color: #6586E7;"><span class="badge badge-pill badge-success" style="font-size: 0.65rem;">{{i.nfiles}}</span></i>
                                             </a>
                                         </div>
                                         <span style="word-wrap: break-word;">

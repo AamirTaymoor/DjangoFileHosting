@@ -70,11 +70,18 @@
 
       <!-- Divider -->
       <hr class="sidebar-divider">
-      <li class="nav-item active">
-        <a class="nav-link" href="{% url 'ftp:view-all-files' pk=user.username %}">
-          <i class="fa-solid fa-file"></i>
-            <span>My Files </span></a>
-    </li>
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'ftp:view-all-files' pk=user.username %}">
+                <i class="fa-solid fa-file"></i>
+                <span>My Files </span></a>
+        </li>
+
+    <hr class="sidebar-divider">
+        <li class="nav-item active">
+            <a class="nav-link" href="{% url 'ftp:trash' %}">
+                <i class="fa-solid fa-trash-can"></i></i>
+                <span>Trash </span></a>
+        </li>
       <!-- Heading -->
       <!-- <div class="sidebar-heading">
           Interface

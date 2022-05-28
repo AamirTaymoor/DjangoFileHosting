@@ -6,7 +6,6 @@ from django.db.models.signals import post_save
 
 # Create your models here.
 def user_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<username>/<filename>
     return "%s%s" %(instance.user.username, filename)
 
 class Profile(models.Model):
@@ -22,6 +21,12 @@ class Directory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
+    is_deleted = models.BooleanField(default=False)
+
+    def nfiles(self):
+        files = self.myfiles_set.filter(is_deleted='False')
+        n = files.count()
+        return n
 
 class MyFiles(models.Model):
     id=models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -30,6 +35,7 @@ class MyFiles(models.Model):
     file_name=models.CharField(max_length=50, default='file.txt')
     file_ext = models.CharField(max_length=10, default='.txt')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_deleted = models.BooleanField(default=False)
 
 
 def create_profile(sender, instance, created, **kwargs):
