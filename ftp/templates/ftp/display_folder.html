@@ -43,6 +43,53 @@
         document.getElementById("upload-form").action = document.querySelector('#uploadfile').href
     });
 </script>
+
+<!--  -->
+<ul class="navbar-nav justify-content-center">
+  <li class="nav-item justify-content-center">
+      <a href="{% url 'ftp:create-sub-dir' pk %}" class="btn btn-primary " data-toggle="modal" data-target="#create{{user}}" id="createfolder">Create Folder</a>
+      
+      <!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+          Create Folder
+      </button> -->
+  </li>
+</ul>
+
+
+<!-- Create folder modal -->
+<div class="modal fade" id="create{{user}}">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle" style="color: rgb(43, 83, 197);">Create Folder</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          <div class="modal-body">
+              <p>Create New Folder</p>
+              <div class="justify-content-between mb-2 mr-2 text-right">
+                  <form method="post" id="item-delete-form" action="{% url 'ftp:create-sub-dir' pk %}">
+                      {% csrf_token %}
+                      <input type="text" class="form-control" name="d_name" placeholder="Enter folder name here.." required><br>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-primary" id="confirm-create-folder">Create</button>
+                  </form>
+              </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+<script>
+  $(document).on('click', '#createfolder', () => {
+      document.getElementById("foldercreateform").action = document.querySelector('#createfolder').href
+  });
+</script>
+<!--  -->
+
 {% endblock %}
 {% block content %}
 <!-- modal style -->
@@ -60,11 +107,118 @@ input[type=file]::file-selector-button:hover {
   border: 2px solid #00cec9;
 }
 </style>
+<!-- start folder display --> 
 
+<div class="row">       
+  {% if sub_dirs %}
+  {% for i in sub_dirs %}
+        <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
+                    
+                                <div class="col mr-2">
+                                    <div style="display: flex; flex-direction: column;">
+                                        
+                                        <div class="container">
+                                            <a class=" dropdown-toggle" href="#" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: azure;">
+                                                <i class="fa fa-caret-down fa-2x" style="color: #6586E7; position: absolute; left: 60px;" aria-hidden="true"></i>
+                                            </a>
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                <a href="{% url 'ftp:delete-folder' pk=i.id %}" class="dropdown-item text-danger" data-toggle="modal" data-target="#del{{i.name}}" id="delete-item">              
+                                                    Delete
+                                                    <i class="fa fa-trash" aria-hidden="true" ></i>
+                                                </a>
+                                                <a href="{% url 'ftp:folder-rename' pk=i.name %}" class="dropdown-item text-info" data-toggle="modal" data-target="#edit{{i.name}}" id="edit-item">
+                                                Edit Name
+                                                <i class="fas fa-edit"></i>
+                                                </a>
+                                            </div>
+                                       </div>
+                                       
+                                       <div>
+                                            <a href="{% url 'ftp:display_folder-page' pk=i.pk %}" >
+                                                <i class="fa-solid fa-folder" style="font-size: 4rem; color: #6586E7;"><span class="badge badge-pill badge-success" style="font-size: 0.65rem;">{{i.nfiles}}</span></i>
+                                            </a>
+                                        </div>
+                                        <span style="word-wrap: break-word;">
+                                           
+                                            {{ i.name }}
+                                            
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>   
+                <!-- delete modal -->
+                <div class="modal fade" id="del{{i.name}}">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" style="color: rgb(43, 83, 197);">Folder Delete</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure to delete folder {{i.name}}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="justify-content-between mb-2 mr-2 text-right">
+                                    <form method="post" id="item-delete-form" action="{% url 'ftp:delete-folder' pk=i.id %}">
+                                        <button type="button" class="btn btn-primary mr-1" data-dismiss="modal">Cancel</button>
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger" id="confirm-delete-item-button">Delete</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- edit folder modal-->
+                <div class="modal fade" id="edit{{i.name}}">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" style="color: rgb(43, 83, 197);">Edit Folder Name</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Are you sure to rename {{i.name}}?</p>
+                                
+                            
+                                <div class="justify-content-between mb-2 mr-2 text-right">
+                                    <form method="post" id="item-edit-form" action="{% url 'ftp:folder-rename' pk=i.name%}">
+                                        {% csrf_token %}
+                                        <input type="text" class="form-control" name="d_name" placeholder="Enter new folder name here.." required><br>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary mr-1" data-dismiss="modal">Cancel</button>
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary" id="confirm-update-folder-button" value="update">Rename</button>
+                                    </form>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    {% endfor %}
+    {% else %}
+
+    {% endif %}
+</div>
+
+<script>
+    $(document).on('click', '#delete-item', () => {
+        document.getElementById("item-delete-form").action = document.querySelector('#delete-item').href
+    });
+</script>
+<script>
+    $(document).on('click', '#edit-item', () => {
+        document.getElementById("item-edit-form").action = document.querySelector('#edit-item').href
+    });
+</script>
+<!-- end folder display -->
 <div class="row">
 {% if d %}
 {% for i in d %}
-
 <div class="col-sm-6 col-md-4 col-lg-3 col-xl-2">
   <div class="col mr-2">
       <div style="display: flex; flex-direction: column;">

@@ -38,15 +38,9 @@ class RegisterView(View):
         form = RegisterForm(request.POST)
         if form.is_valid():
             uname = form.cleaned_data.get('username')
-            print(uname,)
             user = form.save()
             login(request, user)
             messages.success(request, "Registration successful.")
-            obj = Directory()
-            obj.user = request.user
-            obj.name = 'Home'
-            obj.save()
-            # Directory.objects.create()
             return redirect("ftp:login-page")
         messages.warning(
             request, "Unsuccessful registration. Invalid data or Username already exists.")
@@ -93,8 +87,7 @@ class Dashboard(DetailView):
 
     def get_queryset(self):
         uid = User.objects.get(username=self.request.user)
-        self.queryset = Directory.objects.filter(user=uid).filter(is_deleted='False')
-        print(type(self.queryset))
+        self.queryset = Directory.objects.filter(user=uid).filter(is_deleted=False).filter(parent=None)
         return self.queryset
 
     def get(self, request,pk):
@@ -109,6 +102,7 @@ class UploadView(FormView):
     success_url = 'ftp/display_folder.html'
 
     def post(self, request, pk):
+        current_dir = Directory.objects.get(pk=pk)
         if request.FILES.get('myfile'):
             myfile = request.FILES.get('myfile')
             fs = FileSystemStorage()
@@ -116,21 +110,18 @@ class UploadView(FormView):
             uploaded_file_url = fs.url(filename)
             obj = MyFiles()
             obj.file_name=filename
-            print(filename)
             file_extension= os.path.splitext(filename)[1]
             obj.file_ext=file_extension
             obj.file_path = uploaded_file_url
             obj.user = request.user
-            data = Directory.objects.filter(name=pk)[0]
-            obj.directory = Directory.objects.filter(name=pk)[0]
+            obj.directory = current_dir
             obj.save()
             messages.success(request, "File uploaded successfully")
         else:
-            data = Directory.objects.filter(name=pk)[0]
-            f1 = MyFiles.objects.filter(directory=data)
+            f1 = MyFiles.objects.filter(directory=current_dir)
             messages.warning(request, "No file selected")
             return render(request, 'ftp/display_folder.html', {'pk': pk,'d':f1})
-        f = MyFiles.objects.filter(directory=data)
+        f = MyFiles.objects.filter(directory=current_dir)
         return render(request, 'ftp/display_folder.html', {'pk': pk,'d':f})
 
     def get(self, request, pk):
@@ -151,35 +142,71 @@ class CreateFolder(CreateView):
         if my_form.is_valid():
             dname = my_form.cleaned_data['d_name']
             obj = Directory()
-            folders = Directory.objects.filter(name=dname).filter(is_deleted='False').filter(user=request.user)
-            print(len(folders))
-            if len(folders) == 0:
+            if not self.if_folder_name_exists(dname):
                 obj.user = request.user
-                #print("@@@@@@@@@@@@@@@")
-                # d = Directory.objects.get()
-                obj.parent = None
+                # obj.parent = pk
                 obj.name = dname
                 obj.save()
                 messages.success(request, "Folder created successfully")
             else:
                 messages.warning(request, "Folder already exists with this name. Try other name")
-                #print("&&&&&&&&&&&&&&&&&&&")
+                # return redirect("ftp:dashboard",pk=pk)
                 return redirect("ftp:dashboard",pk=request.user.username)
 
 
         uid = User.objects.get(username=self.request.user)
-        context = Directory.objects.filter(user=uid).filter(is_deleted='False')
-        return render(request, 'ftp/dashboard.html',{'context':context})
+        context = Directory.objects.filter(user=uid).filter(is_deleted=False)
+        return render(request, 'ftp/dashboard.html', {'context':context})
+
+    def if_folder_name_exists(self, name):
+        no_of_folders = Directory.objects.filter(name=name,is_deleted=False, user=self.request.user).count()
+        if no_of_folders == 0:
+            return False
+        return True 
+@method_decorator(login_required, name='dispatch')
+class CreateSubFolder(CreateView):
+    model=Directory
+    fields = ['name']
+    
+    def get(self, request):
+        form = CreateDirForm()
+        return render(request, 'ftp/create_dir.html', {'form':form})
+
+    def post(self, request, pk):
+        my_form = CreateDirForm(request.POST)
+        if my_form.is_valid():
+            dname = my_form.cleaned_data['d_name']
+            obj = Directory()
+            if not self.if_folder_name_exists(dname):
+                obj.user = request.user
+                obj.parent = Directory.objects.get(pk=pk)
+                obj.name = dname
+                obj.save()
+                messages.success(request, "Folder created successfully")
+            else:
+                messages.warning(request, "Folder already exists with this name. Try other name")
+                # return redirect("ftp:dashboard",pk=pk)
+                return redirect("ftp:display_folder-page",pk=pk)
 
 
+        uid = User.objects.get(username=self.request.user)
+        context = Directory.objects.filter(user=uid).filter(is_deleted=False)
+        return render(request, 'ftp/dashboard.html', {'context':context})
+
+    def if_folder_name_exists(self, name):
+        no_of_folders = Directory.objects.filter(name=name,is_deleted=False, user=self.request.user).count()
+        if no_of_folders == 0:
+            return False
+        return True
+    
 @method_decorator(login_required, name='dispatch')
 class FolderView(View):
     def get(self, request, pk):
-        data = Directory.objects.filter(name=pk).filter(user=request.user).filter(is_deleted='False')
-        print('##############')
-        fil = MyFiles.objects.filter(directory=data[0]).filter(is_deleted='False')
-        print('****************************')
-        return render(request, 'ftp/display_folder.html', {'d':fil,'pk':pk})
+        directory = Directory.objects.get(pk=pk)
+        # data = Directory.objects.filter(pk=pk).filter(user=request.user).filter(is_deleted='False').filter(parent=pk)
+        fil = MyFiles.objects.filter(directory=directory).filter(is_deleted=False)
+        sub_dirs = Directory.objects.filter(user=self.request.user, is_deleted=False, parent=pk)
+        return render(request, 'ftp/display_folder.html', {'d':fil,'sub_dirs':sub_dirs, 'pk':pk})
 
 
 @method_decorator(login_required, name='dispatch')
@@ -211,14 +238,10 @@ class DeleteFolder(DeleteView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         success_url = self.get_success_url()
-        print(self.object.name)
-        #self.object.delete()
         self.object.is_deleted = True
         r_files = MyFiles.objects.filter(user=request.user).filter(directory= self.object)
         r_files.update(is_deleted=True)
         self.object.save()
-        print("@@@@@@@@@@@@@@@")
-        print(self.object.is_deleted)
         return redirect(success_url)
 
 @method_decorator(login_required, name='dispatch')
@@ -227,12 +250,9 @@ class DeleteFile(DeleteView):
 
     def get_success_url(self):
         o_id = self.kwargs.get('pk')
-        print(o_id,"idididididididid", self.kwargs['pk'])
         dir = MyFiles.objects.get(id = o_id).directory
-        print(dir)
         folder_name = str(dir.name)
         messages.info(self.request, "File deleted!!")
-        print("folder########", folder_name)
         return reverse_lazy('ftp:display_folder-page', kwargs={'pk':folder_name})
 
     # def delete(self, request, *args, **kwargs ):
@@ -252,10 +272,7 @@ class DeleteFile(DeleteView):
 @method_decorator(login_required, name='dispatch')
 class ViewAllFiles(View):
     def get(self, request, pk):
-        all_files = MyFiles.objects.filter(user=request.user).filter(is_deleted='False')
-        print('##############')
-        #fil = MyFiles.objects.filter(directory=data[0])
-        print('****************************')
+        all_files = MyFiles.objects.filter(user=request.user).filter(is_deleted=False)
         return render(request, 'ftp/all_files.html', {'d':all_files,'pk':pk})
 
 @method_decorator(login_required, name='dispatch')
@@ -275,7 +292,6 @@ class FolderRenameView(UpdateView):
             all_dirs = Directory.objects.filter(user=request.user).filter(name=new_name)
             related_files = MyFiles.objects.filter(user= request.user).filter(directory=obj[0])
 
-            print(new_name, all_dirs, obj)
             if len(all_dirs) == 0:
                 #Directory.objects.filter(user=request.user).get(name=kwargs['pk']).update(name=new_name)
                 if len(related_files) != 0:
@@ -331,15 +347,12 @@ class ChangePasswordView(View):
             new_password = my_form.cleaned_data['pass_word']
             try:
                 u = User.objects.get(username = uname)
-                print(u)
                 u.set_password(new_password)
                 u.save()
-                print('^^^^^^^^^^^^^^')
                 messages.success(request, "Password changed!!")
                 return redirect("ftp:login-page")
             except :
                 messages.warning(request, "Username does not exist!!! Enter registered Username.")
-                print('~~~~~~~~~~~~~~~~~~')
                 return redirect("ftp:change-password")
 
 @method_decorator(login_required, name='dispatch')
@@ -350,8 +363,6 @@ class SearchView(View):
     def post(self, request, *args, **kwargs):
         searched = request.POST.get('searched')
         pk = kwargs['pk']
-        print(pk)
-        print(type(searched))
         if len(searched) != 0:
             print('nothing to search')
             #folders = Directory.objects.filter(user=request.user).filter(name__icontains=searched)

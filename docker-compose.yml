@@ -1,0 +1,58 @@
+version: '3.9'
+services:
+  # db:
+  #   image: mysql:8
+  #   restart: always
+  #   container_name: db
+
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=root
+  #     - MYSQL_DATABASE=ftp
+  #   ports:
+  #     - "3307:3306"
+  #   volumes:
+  #     - ./mysql-data:/var/lib/mysql
+  #   networks:
+  #     - mynetwork 
+
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --no-input && python manage.py runserver 0.0.0.0:8000"
+    restart: always
+    container_name: django-app
+    volumes:
+      - static_volume:/app/static
+      - media_volume:/app/media
+    ports: 
+      - "8000:8000"
+    # depends_on:
+    #   - db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - mynetwork
+  
+  # apache:
+  #   build: ./apache
+  #   container_name: apache_server_for_ftp
+  #   volumes:
+  #     - static_volume:/app/static
+  #     - media_volume:/app/media
+  #   ports:
+  #     - "81:80"
+  #   networks:
+  #     - mynetwork
+  #   depends_on:
+  #     - web
+
+
+volumes: 
+  mysql-data:
+  static_volume:
+  media_volume:
+
+networks:
+  mynetwork:
+    driver: bridge

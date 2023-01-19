@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+from email.policy import default
 from pathlib import Path
 import os
 
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-wl%%w(has@b!rb&m3^n@hy1n!#bil#@s@@yj!cdz^g(3o4mu7a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -78,15 +79,16 @@ WSGI_APPLICATION = 'ftpHosting.wsgi.application'
 
 DATABASES = {
     'default': {  
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.mysql',  
-        'NAME': 'ftpDb',  
-        'USER': 'aamir',  
-        'PASSWORD': 'aaa',  
-        'HOST': '127.0.0.1',  
-        'PORT': '3306',  
+        'NAME': 'ftp',  
+        'USER': 'root',  
+        'PASSWORD': 'root',  
+        'HOST': '',  
+        'PORT': '',  
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -125,7 +127,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-
+STATIC_ROOT = STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 # Default primary key field type
