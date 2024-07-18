@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from email.policy import default
 from pathlib import Path
 import os
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -72,6 +73,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'ftpHosting.wsgi.application'
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+print(config('DATABASE_HOST'))
+print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 
 # Database
@@ -82,11 +86,11 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.mysql',  
-        'NAME': 'ftp',  
-        'USER': 'root',  
-        'PASSWORD': 'root',  
-        'HOST': '',  
-        'PORT': '',  
+        'NAME': config('DATABASE_NAME'),  
+        'USER': config('DATABASE_USER'),  
+        'PASSWORD': config('DATABASE_PASSWORD'),  
+        'HOST': config('DATABASE_HOST'),  
+        'PORT': config('DATABASE_PORT'),  
     }
 }
 

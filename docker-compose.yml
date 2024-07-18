@@ -1,4 +1,4 @@
-version: '3.9'
+# version: '3.9'
 services:
   # db:
   #   image: mysql:8
@@ -6,8 +6,10 @@ services:
   #   container_name: db
 
   #   environment:
-  #     - MYSQL_ROOT_PASSWORD=root
-  #     - MYSQL_DATABASE=ftp
+  #     MYSQL_DATABASE: ${DATABASE_NAME}
+  #     # MYSQL_USER: ${DATABASE_USER}
+  #     MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+  #     MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
   #   ports:
   #     - "3307:3306"
   #   volumes:
@@ -19,20 +21,27 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --no-input && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py collectstatic --no-input && python manage.py runserver 0.0.0.0:8080"
     restart: always
     container_name: django-app
+    environment:
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
     ports: 
-      - "8000:8000"
+      - "8080:8080"
     # depends_on:
     #   - db
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    networks:
-      - mynetwork
+    # networks:
+    #   - mynetwork
+    network_mode: "host"
   
   # apache:
   #   build: ./apache
@@ -49,10 +58,9 @@ services:
 
 
 volumes: 
-  mysql-data:
   static_volume:
   media_volume:
 
-networks:
-  mynetwork:
-    driver: bridge
+# networks:
+#   mynetwork:
+#     driver: bridge
